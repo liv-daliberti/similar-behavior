@@ -176,3 +176,6 @@ cython_debug/
 # Ignore these folders
 cleanrl/
 data/
+checkpoints/
+wandb/
+runs/
