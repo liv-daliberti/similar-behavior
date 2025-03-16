@@ -1,4 +1,0 @@
-actor_0_alpha,actor_0_seed,actor_1_alpha,actor_1_seed,algorithm,n_eval_episodes,mean_reward,mean_KL
-0.4,2,0.4,1,sac_continuous_action.py,10,3388.6437071147,0.12111212313175201
-0.4,2,0.4,3,sac_continuous_action.py,10,3392.389076119363,0.058149076998233795
-0.4,2,0.4,5,sac_continuous_action.py,10,3390.0814867323775,0.26034998893737793
