@@ -1,6 +1,6 @@
 #!/bin/bash
-# This script runs SAC experiments locally on 4 GPUs,
-# with 2 experiments running concurrently on each GPU.
+# This script runs SAC experiments locally on 1 GPU,
+# with only 3 experiments running concurrently.
 
 # Load necessary modules and activate the Conda environment
 module purge
@@ -8,8 +8,8 @@ module load anaconda3/2024.6
 conda activate similar-behavior
 
 # Sweep parameters
-SEEDS=(4)
-ALPHAS=(0.3 0.4 0.5 0.6)
+SEEDS=(6 7 8 9 10)
+ALPHAS=(0 0.1 0.2 0.3 0.4 0.5 0.6)
 
 counter=0
 
@@ -20,11 +20,10 @@ for SEED in "${SEEDS[@]}"; do
         RUN_NAME="sac_hopper-v4-seed-${SEED}-alpha-${ALPHA}"
         echo "Launching experiment ${RUN_NAME}"
 
-        # Assign GPU, ensuring 2 experiments per GPU concurrently
-        GPU_ID=$(( (counter / 2) % 4 ))
-        export CUDA_VISIBLE_DEVICES=${GPU_ID}
+        # Set GPU explicitly (only GPU 0 available)
+        export CUDA_VISIBLE_DEVICES=0
 
-        # Run the experiment in the background.
+        # Run the experiment in the background
         python cleanrl/cleanrl/sac_continuous_action.py \
             --seed ${SEED} \
             --total_timesteps 2500000 \
@@ -44,15 +43,15 @@ for SEED in "${SEEDS[@]}"; do
             --gamma 0.99 \
             --tau 0.005 \
             --batch_size 256 \
-            --policy_lr 3e-4 \
-            --q_lr 3e-4 \
+            --policy_lr 0.0003 \
+            --q_lr 0.001 \
             --policy_frequency 2 \
             --target_network_frequency 1 &
 
         ((counter++))
 
-        # Launch in batches of 8 concurrently (2 per GPU with 4 GPUs)
-        if (( counter % 8 == 0 )); then
+        # Launch in batches of 3 concurrently (single GPU)
+        if (( counter % 3 == 0 )); then
             wait
         fi
     done

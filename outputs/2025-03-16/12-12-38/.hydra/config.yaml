@@ -1,0 +1,15 @@
+env: Hopper-v4
+n_eval_episodes: 10
+root_dir: wandb
+seed: 0
+capture_video: false
+run_name: KL-div-run
+checkpoint_step: 2450000
+training_seeds:
+- 1
+- 2
+- 3
+- 4
+- 5
+algorithms:
+- sac_continuous_action.py
