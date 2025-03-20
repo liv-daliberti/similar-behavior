@@ -1,15 +1,18 @@
 #!/bin/bash
-# This script runs SAC experiments locally on 1 GPU,
-# with only 3 experiments running concurrently.
+# This script runs SAC experiments on 1 GPU,
+# with 2 experiments running concurrently.
 
 # Load necessary modules and activate the Conda environment
 module purge
 module load anaconda3/2024.6
 conda activate similar-behavior
 
+# Only one GPU available: assign GPU 0 for all experiments.
+export CUDA_VISIBLE_DEVICES=0
+
 # Sweep parameters
-SEEDS=(6 7 8 9 10)
-ALPHAS=(0 0.1 0.2 0.3 0.4 0.5 0.6)
+SEEDS=(3 5)
+ALPHAS=(0.2 0.3 0.4 0.5 0.6 0 0.1)
 
 counter=0
 
@@ -20,11 +23,8 @@ for SEED in "${SEEDS[@]}"; do
         RUN_NAME="sac_hopper-v4-seed-${SEED}-alpha-${ALPHA}"
         echo "Launching experiment ${RUN_NAME}"
 
-        # Set GPU explicitly (only GPU 0 available)
-        export CUDA_VISIBLE_DEVICES=0
-
-        # Run the experiment in the background
-        python cleanrl/cleanrl/sac_continuous_action.py \
+        # Run the experiment in the background.
+        python cleanrl/cleanrl/meow_continuous_action.py \
             --seed ${SEED} \
             --total_timesteps 2500000 \
             --learning_starts 5000 \
@@ -32,7 +32,6 @@ for SEED in "${SEEDS[@]}"; do
             --no-autotune \
             --env_id Hopper-v4 \
             --exp_name hopper-v4 \
-            --run_name ${RUN_NAME} \
             --track \
             --torch_deterministic \
             --cuda \
@@ -43,15 +42,19 @@ for SEED in "${SEEDS[@]}"; do
             --gamma 0.99 \
             --tau 0.005 \
             --batch_size 256 \
-            --policy_lr 0.0003 \
-            --q_lr 0.001 \
+            --q_lr 1e-3 \
             --policy_frequency 2 \
-            --target_network_frequency 1 &
+            --target_network_frequency 1 \
+            --noise_clip 0.5 \
+            --grad_clip 30 \
+            --sigma_max -0.3 \
+            --sigma_min -5.0 \
+            --no-deterministic_action  &
 
         ((counter++))
 
-        # Launch in batches of 3 concurrently (single GPU)
-        if (( counter % 3 == 0 )); then
+        # Wait after launching 2 experiments concurrently.
+        if (( counter % 2 == 0 )); then
             wait
         fi
     done

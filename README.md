@@ -6,22 +6,30 @@ This repository explores the generation of more similar behaviors using MaxEnt R
 
 ## Base Environemt
 
-To create and activate a Python environment for the projeect, run the following commands:
+To recreate our CleanRL `MuJoCo` experiments, please run the following commands to set up your environment:
 
 ```bash
 conda create --name similar-behavior python=3.10 pip
 conda activate similar-behavior
 pip install -r requirements.txt
+git clone https://github.com/vwxyzjn/cleanrl.git && cd cleanrl
+pip install -r requirements/requirements.txt
+pip install =r requirements/requirements-mujoco.txt
 ```
+To recreate our CleanRL `dm_control` experiments, please run the following commands:
+
+```bash
+conda create --name similar-behavior-dm python=3.10 pip
+conda activate similar-behavior-dm
+pip install -r requirements.txt
+git clone https://github.com/vwxyzjn/cleanrl.git && cd cleanrl
+pip install -r requirements/requirements.txt
+pip install -r requirements/requirements-dm_control.txt
+```
+
 
 ## CleanRL SAC Experiments
 
-To recreate our CleanRL experiments, please run the following commands:
-
-```bash
-git clone https://github.com/vwxyzjn/cleanrl.git && cd cleanrl
-pip install -r requirements/requirements.txt
-```
 
 Then, you can replicate the data used within our experiments by training runs within a given environment by running the associated slurm file for each of the following environments matching the setting below: 
 
