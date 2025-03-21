@@ -1,4 +1,2 @@
-env,actor_0_alpha,actor_0_seed,actor_1_alpha,actor_1_seed,algorithm,n_eval_episodes,mean_reward,mean_KL,q_infnorm,jacobian_diff
-Hopper-v4,0.4,2,0.4,4,code/cleanrl/cleanrl/sac_continuous_action.py,10,3375.9048466213853,0.05234260857105255,69.18876647949219,10.098157413434983
-Hopper-v4,0.4,2,0.4,1,code/cleanrl/cleanrl/sac_continuous_action.py,10,3377.069253502217,0.07049574702978134,69.80931091308594,10.227349612295628
-Hopper-v4,0.4,2,0.4,3,code/cleanrl/cleanrl/sac_continuous_action.py,10,3389.2846671077737,0.06129872798919678,69.55316162109375,8.171816824805736
+env,actor_0_alpha,actor_0_seed,actor_1_alpha,actor_1_seed,algorithm,n_eval_episodes,mean_reward,mean_KL,q_output_diff,jacobian_diff
+Hopper-v4,0.3,1,0.3,3,code/cleanrl/cleanrl/meow_continuous_action.py,25,2696.618949291507,0.994926423486643,0.4811704426891114,6.534676887931199
