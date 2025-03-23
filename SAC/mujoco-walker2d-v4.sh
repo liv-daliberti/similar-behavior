@@ -1,18 +1,14 @@
 #!/bin/bash
-# This script runs SAC experiments locally on 1 GPU,
-# with 3 experiments running concurrently.
+# This script runs SAC experiments locally on 4 GPUs,
+# with 2 experiments per GPU running concurrently (8 total at a time).
 
 # Load necessary modules and activate the Conda environment
 module purge
 module load anaconda3/2024.6
 conda activate similar-behavior
 
-# Set the GPU to use (only 1 GPU available)
-export CUDA_VISIBLE_DEVICES=0
-export WANDB_MODE=offline
-
 # Sweep parameters
-SEEDS=(1 2 3 4 5)
+SEEDS=(3 4 5)
 ALPHAS=(0 0.1 0.2 0.3 0.4 0.5 0.6)
 
 counter=0
@@ -20,14 +16,17 @@ counter=0
 # Loop over each seed and alpha value
 for SEED in "${SEEDS[@]}"; do
     for ALPHA in "${ALPHAS[@]}"; do
+        # Assign a GPU: each pair of experiments goes to one GPU
+        GPU_ID=$(( (counter / 2) % 4 ))
+        
         # Construct run name: sac_walker2d-v4-seed-X-alpha-Y
         RUN_NAME="sac_walker2d-v4-seed-${SEED}-alpha-${ALPHA}"
-        echo "Launching experiment ${RUN_NAME}"
+        echo "Launching experiment ${RUN_NAME} on GPU ${GPU_ID}"
 
-        # Run the experiment in the background.
-        python cleanrl/cleanrl/sac_continuous_action.py \
+        # Run the experiment in the background with the assigned GPU.
+        env CUDA_VISIBLE_DEVICES=${GPU_ID} python cleanrl/cleanrl/sac_continuous_action.py \
             --seed ${SEED} \
-            --total_timesteps 2500000 \
+            --total_timesteps 5000000 \
             --learning_starts 5000 \
             --alpha ${ALPHA} \
             --no-autotune \
@@ -51,8 +50,8 @@ for SEED in "${SEEDS[@]}"; do
 
         ((counter++))
 
-        # Launch in batches of 3 concurrently.
-        if (( counter % 3 == 0 )); then
+        # Launch in batches of 8 concurrently (2 per GPU across 4 GPUs).
+        if (( counter % 8 == 0 )); then
             wait
         fi
     done

@@ -9,8 +9,8 @@ conda activate similar-behavior-dm
 export WANDB_MODE=offline
 
 # Sweep parameters
-ALPHAS=(0.4 0.5 0.6 0)
-SEEDS=(3)
+ALPHAS=(0.1 0.2 0.3 0.4 0.5 0.6 0)
+SEEDS=(4 5)
 
 # Always use GPU 0
 export CUDA_VISIBLE_DEVICES=0

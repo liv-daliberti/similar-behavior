@@ -1,9 +1,9 @@
 # File: configs/inference.yaml
 
 envs: 
-  - "Hopper-v4"
-  - "Walker2d-v4"
-  - "HalfCheetah-v4"
+#  - "Hopper-v4"
+#  - "Walker2d-v4"
+#  - "HalfCheetah-v4"
   - "Ant-v4"
 n_eval_episodes: 25
 root_dir: "wandb"
@@ -11,9 +11,9 @@ seed: 0
 capture_video: false
 run_name: "KL-div-run"
 checkpoint_steps:
-  Hopper-v4: 2400000
-  Walker2d-v4: 2400000
-  HalfCheetah-v4: 2400000
+#  Hopper-v4: 2450000
+#  Walker2d-v4: 2400000
+#  HalfCheetah-v4: 2400000
   Ant-v4: 2400000
 training_seeds: [1, 2, 3, 4, 5]
 algorithms:

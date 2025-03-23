@@ -18,9 +18,9 @@ counter=0
 for ALPHA in "${ALPHAS[@]}"; do
     # For α = 0.05, 0.025, 0 use seeds 4 and 5; otherwise use seeds 3, 4, 5.
     if [[ "$ALPHA" == "0.05" || "$ALPHA" == "0.025" || "$ALPHA" == "0" ]]; then
-         SEEDS=(4 5)
+         SEEDS=(1 2 3)
     else
-         SEEDS=(3 4 5)
+         SEEDS=(1 2)
     fi
     # Loop over the appropriate seeds.
     for SEED in "${SEEDS[@]}"; do
@@ -36,7 +36,7 @@ for ALPHA in "${ALPHAS[@]}"; do
         # Launch the experiment with the assigned GPU.
         CUDA_VISIBLE_DEVICES=${gpu_id} python cleanrl/cleanrl/sac_continuous_action.py \
             --seed ${SEED} \
-            --total_timesteps 2500000 \
+            --total_timesteps 5000000 \
             --learning_starts 5000 \
             --alpha ${ALPHA} \
             --no-autotune \

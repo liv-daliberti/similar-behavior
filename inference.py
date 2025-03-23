@@ -7,7 +7,14 @@ For each pair, it computes:
  - KL divergence between the action distributions (naive for MEOW)
  - The L∞ norm (infinite norm) between the Q networks
  - The average Frobenius norm difference between the Jacobians
-Evaluations are only performed if at least two valid runs exist for a given (alpha, algorithm) group.
+
+Additionally, for each pair the script evaluates actor_i (the “in charge” actor)
+over n_eval_episodes to obtain its reward distribution and then computes:
+ - The median reward and its bootstrap 95% confidence interval,
+ - The interquartile mean (IQM) reward and its bootstrap 95% confidence interval, and
+ - A score distribution via key quantiles (10th, 25th, 50th, 75th, and 90th).
+
+These metrics are appended to the CSV output.
 """
 
 import os
@@ -399,7 +406,6 @@ def get_algo_priority(algo):
 
 # ----------------------- Helper Functions -------------------------------
 # Environment creation functions.
-# For SAC: no additional action rescaling.
 def make_env_sac(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
@@ -412,7 +418,6 @@ def make_env_sac(env_id, seed, idx, capture_video, run_name):
         return env
     return thunk
 
-# For MEOW: use RescaleAction to match training.
 def make_env_meow(env_id, seed, idx, capture_video, run_name):
     def thunk():
         if capture_video and idx == 0:
@@ -513,158 +518,62 @@ def get_algo_priority(algo):
     else:
         return 3
 
-def _evaluate_q_output_difference(env, n_eval_episodes, actor_1, qf1_i, qf2_i, qf1_j, qf2_j, device, seed=0):
-    total_q_diff, total_steps = 0.0, 0
-    qf1_i.eval(); qf2_i.eval(); qf1_j.eval(); qf2_j.eval()
-    for _ in range(n_eval_episodes):
+# ----------------------- New Helper Functions for Reward Metrics -----------------------
+def compute_IQM(scores):
+    """Compute the interquartile mean (IQM) of a list of scores."""
+    scores_sorted = np.sort(scores)
+    n = len(scores_sorted)
+    trim = int(0.25 * n)
+    if n - 2 * trim > 0:
+        return np.mean(scores_sorted[trim:n - trim])
+    else:
+        return np.mean(scores_sorted)
+
+def bootstrap_CI(scores, stat_func, n_bootstrap=1000, alpha=0.05):
+    """Compute a bootstrap confidence interval for a given statistic (e.g. np.median or compute_IQM)."""
+    boot_stats = []
+    scores = np.array(scores)
+    n = len(scores)
+    for _ in range(n_bootstrap):
+        sample = np.random.choice(scores, size=n, replace=True)
+        boot_stats.append(stat_func(sample))
+    lower = np.percentile(boot_stats, 100 * (alpha / 2))
+    upper = np.percentile(boot_stats, 100 * (1 - alpha / 2))
+    return lower, upper
+
+def evaluate_actor(actor, env, n_eval_episodes, seed):
+    """
+    Run a single actor on the environment for n_eval_episodes and return a list of total rewards per episode.
+    """
+    rewards_list = []
+    for episode in range(n_eval_episodes):
         obs, _ = env.reset(seed=seed)
+        total_reward = 0.0
         done = False
         while not done:
-            obs_tensor = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
+            obs_tensor = torch.tensor(obs, dtype=torch.float32, device=actor.device).unsqueeze(0)
             with torch.no_grad():
-                action_1, _, _ = actor_1.get_action(obs_tensor, deterministic=False)
-                q_i = torch.min(qf1_i(obs_tensor, action_1), qf2_i(obs_tensor, action_1))
-                q_j = torch.min(qf1_j(obs_tensor, action_1), qf2_j(obs_tensor, action_1))
-                total_q_diff += (q_i - q_j).abs().item()
-                total_steps += 1
-            next_obs, rewards, terminated, truncated, _ = env.step(action_1.squeeze(0).cpu().numpy())
-            obs = next_obs
+                action, _, _ = actor.get_action(obs_tensor, deterministic=False)
+            next_obs, reward, terminated, truncated, _ = env.step(action.squeeze(0).cpu().numpy())
+            total_reward += reward
             done = terminated or truncated
-    return total_q_diff / total_steps if total_steps else float("nan")
- 
-def _evaluate_q_output_difference_meow(env, n_eval_episodes, actor_1, actor_2, device, seed=0):
-    total_q_diff, total_steps = 0.0, 0
-    for _ in range(n_eval_episodes):
-        obs, _ = env.reset(seed=seed)
-        done = False
-        while not done:
-            obs_tensor = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
-            with torch.no_grad():
-                a1, _, _ = actor_1.get_action(obs_tensor, deterministic=False)
-                a2, _, _ = actor_2.get_action(obs_tensor, deterministic=False)
-                q1, _ = actor_1.flow_policy.get_qv(obs_tensor, a1)
-                q2, _ = actor_2.flow_policy.get_qv(obs_tensor, a2)
-                total_q_diff += (q1 - q2).abs().mean().item()
-                total_steps += 1
-            next_obs, rewards, terminated, truncated, _ = env.step(a1.squeeze(0).cpu().numpy())
             obs = next_obs
-            done = terminated or truncated
-    return total_q_diff / total_steps if total_steps else float("nan")
+        rewards_list.append(total_reward)
+    return rewards_list
 
-
-# ----------------------- Main Function -------------------------------
-@hydra.main(config_path="configs", config_name="inference")
-def main(cfg: DictConfig):
-    root_dir = to_absolute_path(cfg.root_dir)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-    print("Configuration:\n", OmegaConf.to_yaml(cfg))
-    
-    for env in cfg.envs:
-        print(f"\nProcessing environment: {env}")
-        checkpoint_step = cfg.checkpoint_steps.get(env)
-        if checkpoint_step is None:
-            raise ValueError(f"checkpoint_step for {env} not found in the config!")
-        print(f"Using checkpoint step {checkpoint_step} for {env}")
-        
-        runs = gather_valid_runs(root_dir, env, checkpoint_step, cfg.training_seeds, cfg.algorithms)
-        print(f"Found valid runs for {env}:", runs)
-        if not runs:
-            print(f"No valid runs found for {env}; skipping.")
-            continue
-        
-        # Group runs by (alpha, algorithm)
-        grouped = defaultdict(list)
-        for run in runs:
-            key = (run["alpha"], run["algorithm"])
-            grouped[key].append(run)
-        
-        results_dir = to_absolute_path(cfg.results_dir) if "results_dir" in cfg else to_absolute_path("results")
-        os.makedirs(results_dir, exist_ok=True)
-        output_file = os.path.join(results_dir, f"{env}-KL_divergence_final.csv")
-        with open(output_file, "w") as f:
-            f.write("env,actor_0_alpha,actor_0_seed,actor_1_alpha,actor_1_seed,algorithm,"
-                    "n_eval_episodes,mean_reward,mean_KL,q_output_diff,jacobian_diff\n")
-        
-        # Create the environment instance.
-        # If any run is MEOW, use the MEOW env wrapper; otherwise use SAC.
-        if any("meow_continuous_action.py" in run["algorithm"] for run in runs):
-            envs_inst = gym.vector.SyncVectorEnv([make_env_meow(env, cfg.seed, 0, cfg.capture_video, cfg.run_name)])
-        else:
-            envs_inst = gym.vector.SyncVectorEnv([make_env_sac(env, cfg.seed, 0, cfg.capture_video, cfg.run_name)])
-        
-        # Process groups sorted by algorithm priority (MEOW first, then TD3, then SAC)
-        for key in sorted(grouped.keys(), key=lambda k: get_algo_priority(k[1])):
-            run_group = grouped[key]
-            # Skip groups with less than 2 runs
-            if len(run_group) < 2:
-                continue
-            for run_i, run_j in itertools.combinations(run_group, 2):
-                # Only compare runs with different seeds.
-                if run_i["seed"] == run_j["seed"]:
-                    continue
-                
-                actor_i = load_actor(run_i, envs_inst, device, cfg)
-                actor_j = load_actor(run_j, envs_inst, device, cfg)
-                
-                # Evaluate rewards and KL divergence
-                if "meow_continuous_action.py" in run_i["algorithm"]:
-                    mean_reward, std_reward, mean_KL, std_KL = _evaluate_agent_meow(
-                        env=envs_inst, n_eval_episodes=cfg.n_eval_episodes,
-                        actor_1=actor_i, actor_2=actor_j, seed=cfg.seed, num_samples=2
-                    )
-                else:
-                    mean_reward, std_reward, mean_KL, std_KL = _evaluate_agent(
-                        env=envs_inst, n_eval_episodes=cfg.n_eval_episodes,
-                        actor_1=actor_i, actor_2=actor_j, seed=cfg.seed
-                    )
-                
-                # Evaluate Q differences
-                if "meow_continuous_action.py" in run_i["algorithm"]:
-                    single_env_for_q = make_env_meow(env, cfg.seed, 999, cfg.capture_video, cfg.run_name)()
-                    q_norm_diff = _evaluate_q_output_difference_meow(
-                        env=single_env_for_q, n_eval_episodes=cfg.n_eval_episodes,
-                        actor_1=actor_i, actor_2=actor_j, device=device, seed=cfg.seed
-                    )
-                    single_env_for_q.close()
-                elif all(k in torch.load(run_i["actor_path"], map_location=device) for k in ["qf1_state_dict", "qf2_state_dict"]) and \
-                     all(k in torch.load(run_j["actor_path"], map_location=device) for k in ["qf1_state_dict", "qf2_state_dict"]):
-                    checkpoint_i = torch.load(run_i["actor_path"], map_location=device)
-                    checkpoint_j = torch.load(run_j["actor_path"], map_location=device)
-                    qf1_i = SoftQNetwork(envs_inst).to(device)
-                    qf2_i = SoftQNetwork(envs_inst).to(device)
-                    qf1_i.load_state_dict(checkpoint_i["qf1_state_dict"])
-                    qf2_i.load_state_dict(checkpoint_i["qf2_state_dict"])
-                    qf1_j = SoftQNetwork(envs_inst).to(device)
-                    qf2_j = SoftQNetwork(envs_inst).to(device)
-                    qf1_j.load_state_dict(checkpoint_j["qf1_state_dict"])
-                    qf2_j.load_state_dict(checkpoint_j["qf2_state_dict"])
-                    single_env_for_q = make_env_sac(env, cfg.seed, 999, cfg.capture_video, cfg.run_name)()
-                    q_norm_diff = _evaluate_q_output_difference(
-                        env=single_env_for_q, n_eval_episodes=cfg.n_eval_episodes,
-                        actor_1=actor_i, qf1_i=qf1_i, qf2_i=qf2_i,
-                        qf1_j=qf1_j, qf2_j=qf2_j, device=device, seed=cfg.seed
-                    )
-                    single_env_for_q.close()
-                else:
-                    q_norm_diff = float('nan')
-                
-                # Evaluate Jacobian differences
-                single_env_for_jac = make_env_sac(env, cfg.seed, 998, cfg.capture_video, cfg.run_name)()
-                jacobian_diff = compute_avg_jacobian_similarity_loop(
-                    env=single_env_for_jac, n_eval_episodes=cfg.n_eval_episodes,
-                    actorA=actor_i, actorB=actor_j, device=device, seed=cfg.seed
-                )
-                single_env_for_jac.close()
-                
-                print(env, run_i["alpha"], run_i["seed"], run_j["alpha"], run_j["seed"],
-                      run_i["algorithm"], cfg.n_eval_episodes, mean_reward, mean_KL, q_norm_diff, jacobian_diff)
-                with open(output_file, "a") as f:
-                    f.write(f"{env},{run_i['alpha']},{run_i['seed']},{run_j['alpha']},{run_j['seed']},"
-                            f"{run_i['algorithm']},{cfg.n_eval_episodes},{mean_reward},"
-                            f"{mean_KL},{q_norm_diff},{jacobian_diff}\n")
-        
-        print(f"Results for {env} saved to {output_file}")
+def compute_score_distribution(scores):
+    """
+    Compute the score distribution for a list of scores, returning key quantiles.
+    """
+    scores = np.array(scores)
+    distribution = {
+        '10th': np.percentile(scores, 10),
+        '25th': np.percentile(scores, 25),
+        '50th': np.percentile(scores, 50),
+        '75th': np.percentile(scores, 75),
+        '90th': np.percentile(scores, 90)
+    }
+    return distribution
 
 # ----------------------- Main Function -------------------------------
 @hydra.main(config_path="configs", config_name="inference")
@@ -696,7 +605,9 @@ def main(cfg: DictConfig):
         output_file = os.path.join(results_dir, f"{env}-KL_divergence_final.csv")
         with open(output_file, "w") as f:
             f.write("env,actor_0_alpha,actor_0_seed,actor_1_alpha,actor_1_seed,algorithm,"
-                    "n_eval_episodes,mean_reward,mean_KL,q_output_diff,jacobian_diff\n")
+                    "n_eval_episodes,mean_reward,mean_KL,q_output_diff,jacobian_diff,"
+                    "median_reward,median_CI_lower,median_CI_upper,IQM_reward,IQM_CI_lower,IQM_CI_upper,"
+                    "quantile_10,quantile_25,quantile_50,quantile_75,quantile_90\n")
         
         if any("meow_continuous_action.py" in run["algorithm"] for run in runs):
             envs_inst = gym.vector.SyncVectorEnv([make_env_meow(env, cfg.seed, 0, cfg.capture_video, cfg.run_name)])
@@ -761,14 +672,32 @@ def main(cfg: DictConfig):
                 )
                 single_env_for_jac.close()
                 
+                # New metrics for actor_i based on reward evaluation
+                rewards_i = evaluate_actor(actor_i, envs_inst, cfg.n_eval_episodes, cfg.seed)
+                median_reward_i = np.median(rewards_i)
+                IQM_reward_i = compute_IQM(rewards_i)
+                median_CI_lower, median_CI_upper = bootstrap_CI(rewards_i, np.median)
+                IQM_CI_lower, IQM_CI_upper = bootstrap_CI(rewards_i, compute_IQM)
+                score_distribution = compute_score_distribution(rewards_i)
+                quantile_10 = score_distribution['10th']
+                quantile_25 = score_distribution['25th']
+                quantile_50 = score_distribution['50th']
+                quantile_75 = score_distribution['75th']
+                quantile_90 = score_distribution['90th']
+                
                 logger.info(f"{env}, {run_i['alpha']}, {run_i['seed']}, {run_j['alpha']}, {run_j['seed']}, "
-                            f"{run_i['algorithm']}, {cfg.n_eval_episodes}, {mean_reward}, {mean_KL}, {q_norm_diff}, {jacobian_diff}")
+                            f"{run_i['algorithm']}, {cfg.n_eval_episodes}, {mean_reward}, {mean_KL}, {q_norm_diff}, {jacobian_diff}, "
+                            f"{median_reward_i}, {median_CI_lower}, {median_CI_upper}, {IQM_reward_i}, {IQM_CI_lower}, {IQM_CI_upper}, "
+                            f"{quantile_10}, {quantile_25}, {quantile_50}, {quantile_75}, {quantile_90}")
                 with open(output_file, "a") as f:
                     f.write(f"{env},{run_i['alpha']},{run_i['seed']},{run_j['alpha']},{run_j['seed']},"
                             f"{run_i['algorithm']},{cfg.n_eval_episodes},{mean_reward},"
-                            f"{mean_KL},{q_norm_diff},{jacobian_diff}\n")
+                            f"{mean_KL},{q_norm_diff},{jacobian_diff},"
+                            f"{median_reward_i},{median_CI_lower},{median_CI_upper},"
+                            f"{IQM_reward_i},{IQM_CI_lower},{IQM_CI_upper},"
+                            f"{quantile_10},{quantile_25},{quantile_50},{quantile_75},{quantile_90}\n")
         
         logger.info(f"Results for {env} saved to {output_file}")
-
+    
 if __name__ == "__main__":
     main()
