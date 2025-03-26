@@ -3,8 +3,6 @@
 # with one experiment running at a time.
 
 # Load necessary modules and activate the Conda environment
-# module purge
-# module load anaconda3/2024.6
 source ~/.bashrc
 conda activate similar-behavior-dm
 export WANDB_MODE=offline
@@ -23,8 +21,8 @@ export CUDA_VISIBLE_DEVICES=0
 # Loop over each alpha then seed
 for ALPHA in "${ALPHAS[@]}"; do
     for SEED in "${SEEDS[@]}"; do
-        # Construct run name: sac_fish-swim-alpha-Y-seed-X
-        RUN_NAME="sac_fish-swim-alpha-${ALPHA}-seed-${SEED}"
+        # Construct run name: sac_quadruped-run-alpha-Y-seed-X
+        RUN_NAME="sac_quadruped-run-alpha-${ALPHA}-seed-${SEED}"
         echo "Launching experiment ${RUN_NAME}"
 
         # Run the experiment and wait for it to complete before starting the next
@@ -34,9 +32,9 @@ for ALPHA in "${ALPHAS[@]}"; do
             --learning_starts 5000 \
             --alpha ${ALPHA} \
             --no-autotune \
-            --env_id "dm_control/fish-swim-v0" \
-            --exp_name dmcontrol-fish-swim-v0 \
-            --wandb_project_name dmcontrol_fish \
+            --env_id "dm_control/cheetah-run-v0" \
+            --exp_name dmcontrol-quadruped-run-v0 \
+            --wandb_project_name dmcontrol_quadruped \
             --run_name ${RUN_NAME} \
             --track \
             --torch_deterministic \
@@ -52,6 +50,6 @@ for ALPHA in "${ALPHAS[@]}"; do
             --policy_frequency 2 \
             --target_network_frequency 1
 
-        # No background processes: each experiment runs sequentially.
+        # Each experiment runs sequentially.
     done
 done
