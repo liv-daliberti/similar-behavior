@@ -946,3 +946,883 @@ Launching experiment sac_finger-spin-alpha-0.75-seed-1 on GPU 0
   ) < LooseVersion("1.15"):
 /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
   ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+global_step=999, episodic_return=[6.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[2.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[0.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+global_step=999, episodic_return=[0.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[0.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[0.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return ▁▁▁▁▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 0.0
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133522-g2dbz841
+wandb: Find logs at: ./wandb/offline-run-20250326_133522-g2dbz841/logs
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return █▁▃▁▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 0.0
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133522-26wl67ja
+wandb: Find logs at: ./wandb/offline-run-20250326_133522-26wl67ja/logs
+Launching experiment sac_finger-spin-alpha-0.75-seed-2 on GPU 0
+Launching experiment sac_finger-spin-alpha-0.75-seed-3 on GPU 0
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+global_step=999, episodic_return=[2.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[0.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[1.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+global_step=999, episodic_return=[3.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[1.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[0.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return █▁▁▁▅
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 1.0
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133544-mn0goaxl
+wandb: Find logs at: ./wandb/offline-run-20250326_133544-mn0goaxl/logs
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return █▁▃▁▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 0.0
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133544-m8lkfzr2
+wandb: Find logs at: ./wandb/offline-run-20250326_133544-m8lkfzr2/logs
+Launching experiment sac_finger-spin-alpha-0.75-seed-4 on GPU 0
+Launching experiment sac_finger-spin-alpha-0.75-seed-5 on GPU 0
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+global_step=999, episodic_return=[0.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[1.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[0.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+global_step=999, episodic_return=[6.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[2.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[0.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return █▁▃▁▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 0.0
+wandb:            global_step 4999
+wandb: 
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return ▁▁█▁▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 0.0
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133605-s6b7x7x9
+wandb: Find logs at: ./wandb/offline-run-20250326_133605-s6b7x7x9/logs
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133605-whhohtfl
+wandb: Find logs at: ./wandb/offline-run-20250326_133605-whhohtfl/logs
+Launching experiment sac_finger-spin-alpha-1-seed-1 on GPU 0
+Launching experiment sac_finger-spin-alpha-1-seed-2 on GPU 0
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+global_step=999, episodic_return=[0.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[0.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[0.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+global_step=999, episodic_return=[2.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[0.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[1.]
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return █▁▁▁▅
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 1.0
+wandb:            global_step 4999
+wandb: 
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return ▁▁▁▁▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 0.0
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133627-9mch2cig
+wandb: Find logs at: ./wandb/offline-run-20250326_133627-9mch2cig/logs
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133627-vwqq3m4o
+wandb: Find logs at: ./wandb/offline-run-20250326_133627-vwqq3m4o/logs
+Launching experiment sac_finger-spin-alpha-1-seed-3 on GPU 0
+Launching experiment sac_finger-spin-alpha-1-seed-4 on GPU 0
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+global_step=999, episodic_return=[0.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[1.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[0.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+global_step=999, episodic_return=[3.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[1.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[0.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return ▁▁█▁▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 0.0
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133649-ludx05ie
+wandb: Find logs at: ./wandb/offline-run-20250326_133649-ludx05ie/logs
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return █▁▃▁▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 0.0
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133649-68wuucks
+wandb: Find logs at: ./wandb/offline-run-20250326_133649-68wuucks/logs
+Launching experiment sac_finger-spin-alpha-1-seed-5 on GPU 0
+Launching experiment sac_quadruped-run-alpha-0.1-seed-1 on GPU 0
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+global_step=999, episodic_return=[4.3164515]
+global_step=1999, episodic_return=[2.052968]
+global_step=2999, episodic_return=[3.0055873]
+global_step=3999, episodic_return=[3.7098856]
+global_step=4999, episodic_return=[3.0775611]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+global_step=999, episodic_return=[6.]
+global_step=1999, episodic_return=[0.]
+global_step=2999, episodic_return=[2.]
+global_step=3999, episodic_return=[0.]
+global_step=4999, episodic_return=[0.]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return █▁▃▁▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 0.0
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133710-y51aq5zp
+wandb: Find logs at: ./wandb/offline-run-20250326_133710-y51aq5zp/logs
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return █▁▄▆▄
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 3.07756
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133710-21hf9mkh
+wandb: Find logs at: ./wandb/offline-run-20250326_133710-21hf9mkh/logs
+Launching experiment sac_quadruped-run-alpha-0.1-seed-2 on GPU 0
+Launching experiment sac_quadruped-run-alpha-0.1-seed-3 on GPU 0
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+global_step=999, episodic_return=[5.730089]
+global_step=1999, episodic_return=[2.8115456]
+global_step=2999, episodic_return=[1.6851969]
+global_step=3999, episodic_return=[4.873288]
+global_step=4999, episodic_return=[2.6185572]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+global_step=999, episodic_return=[4.0090504]
+global_step=1999, episodic_return=[3.2168162]
+global_step=2999, episodic_return=[5.3217654]
+global_step=3999, episodic_return=[5.4224772]
+global_step=4999, episodic_return=[2.545047]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return ▅▃██▁
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 2.54505
+wandb:            global_step 4999
+wandb: 
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return █▃▁▇▃
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 2.61856
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133732-jw7ozgdc
+wandb: Find logs at: ./wandb/offline-run-20250326_133732-jw7ozgdc/logs
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133732-dqfn4ggy
+wandb: Find logs at: ./wandb/offline-run-20250326_133732-dqfn4ggy/logs
+Launching experiment sac_quadruped-run-alpha-0.1-seed-4 on GPU 0
+Launching experiment sac_quadruped-run-alpha-0.1-seed-5 on GPU 0
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+global_step=999, episodic_return=[3.1687424]
+global_step=1999, episodic_return=[3.9265943]
+global_step=2999, episodic_return=[5.150658]
+global_step=3999, episodic_return=[4.15239]
+global_step=4999, episodic_return=[4.0372415]
+global_step=999, episodic_return=[1.9812884]
+global_step=1999, episodic_return=[2.8896155]
+global_step=2999, episodic_return=[4.4467263]
+global_step=3999, episodic_return=[3.1674128]
+global_step=4999, episodic_return=[4.653255]
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+Traceback (most recent call last):
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 305, in <module>
+    qf1_a_values = qf1(data.observations, data.actions).view(-1)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+wandb: Waiting for W&B process to finish... (failed 1).
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/sac_continuous_action-liv-autotune.py", line 132, in forward
+    x = F.relu(self.fc1(x))
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1130, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 114, in forward
+    return F.linear(input, self.weight, self.bias)
+RuntimeError: expected scalar type Float but found Double
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return ▁▃▇▄█
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 4.65325
+wandb:            global_step 4999
+wandb: 
+wandb: 
+wandb: Run history:
+wandb: charts/episodic_length ▁▁▁▁▁
+wandb: charts/episodic_return ▁▄█▄▄
+wandb:            global_step ▁▂▄▅▇█
+wandb: 
+wandb: Run summary:
+wandb: charts/episodic_length 1000.0
+wandb: charts/episodic_return 4.03724
+wandb:            global_step 4999
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133754-0l0sesjr
+wandb: Find logs at: ./wandb/offline-run-20250326_133754-0l0sesjr/logs
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250326_133754-q8ke487l
+wandb: Find logs at: ./wandb/offline-run-20250326_133754-q8ke487l/logs
+Launching experiment sac_quadruped-run-alpha-0.25-seed-1 on GPU 0
+Launching experiment sac_quadruped-run-alpha-0.25-seed-2 on GPU 0
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
