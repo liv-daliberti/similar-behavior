@@ -1,30 +1,18 @@
 #!/bin/bash
-#SBATCH --job-name=sac_humanoid   # Job name
-#SBATCH --nodes=1                 # Node count
-#SBATCH --ntasks=1                # Total number of tasks across all nodes
-#SBATCH --cpus-per-task=1         # CPU cores per task
-#SBATCH --mem=16G                  # Memory per CPU core
-#SBATCH --gres=gpu:1              # Number of GPUs per node
-#SBATCH --time=128:00:00           # Time limit (HH:MM:SS)
-#SBATCH --mail-type=begin         # Send email when the job starts
-#SBATCH --mail-type=end           # Send email when the job ends
-#SBATCH --mail-user=od2961@princeton.edu  # Your email for notifications
-
-
-# This script runs MEOW experiments on 1 GPU,
+# This script runs SAC experiments on 1 GPU,
 # with 2 experiments running concurrently.
 
 # Load necessary modules and activate the Conda environment
 module purge
 module load anaconda3/2024.6
 conda activate similar-behavior
-export WANDB_MODE=offline
 
 # Only one GPU available: assign GPU 0 for all experiments.
 export CUDA_VISIBLE_DEVICES=0
+export WANDB_MODE=offline
 
 # Sweep parameters
-SEEDS=(2)
+SEEDS=(4 5)
 ALPHAS=(0.2 0.3 0.4 0.5 0.6 0 0.1)
 
 counter=0
@@ -32,8 +20,8 @@ counter=0
 # Loop over each seed and alpha value
 for SEED in "${SEEDS[@]}"; do
     for ALPHA in "${ALPHAS[@]}"; do
-        # Construct run name e.g.: meow_walker2d-v4-seed-X-alpha-Y
-        RUN_NAME="meow_walker2d-v4-seed-${SEED}-alpha-${ALPHA}"
+        # Construct run name: sac_hopper-v4-seed-X-alpha-Y
+        RUN_NAME="sac_hopper-v4-seed-${SEED}-alpha-${ALPHA}"
         echo "Launching experiment ${RUN_NAME}"
 
         # Run the experiment in the background.
@@ -43,12 +31,12 @@ for SEED in "${SEEDS[@]}"; do
             --learning_starts 5000 \
             --alpha ${ALPHA} \
             --no-autotune \
-            --env_id Walker2d-v4 \
-            --exp_name walker2d-v4 \
+            --env_id Hopper-v4 \
+            --exp_name hopper-v4 \
             --track \
             --torch_deterministic \
             --cuda \
-            --wandb_project_name walker2d-v4 \
+            --wandb_project_name hopper-v4 \
             --no-capture_video \
             --num_envs 1 \
             --buffer_size 1000000 \

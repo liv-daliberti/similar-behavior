@@ -1,37 +1,31 @@
 #!/bin/bash
-# This script runs SAC Hopper Meow experiments on 1 GPU,
-# launching only the specified experiments concurrently (2 at a time).
+# This script runs SAC experiments locally on 1 GPU,
+# launching 2 experiments concurrently on GPU 0.
 
 # Load necessary modules and activate the Conda environment
 module purge
 module load anaconda3/2024.6
 conda activate similar-behavior
 
-# Only one GPU available: assign GPU 0 for all experiments.
-export CUDA_VISIBLE_DEVICES=0
+# Sweep parameters
+SEEDS=(3 4)
+ALPHAS=(0 0.1 0.2 0.3 0.4 0.5 0.6)
 export WANDB_MODE=offline
 
-# Define the alphas to run in a fixed order.
-ALPHAS_LIST=(0 0.1 0.2 0.3 0.4 0.5 0.6)
-
-# For each alpha, run only seed 1.
-declare -A ALPHA_SEEDS
-for alpha in "${ALPHAS_LIST[@]}"; do
-    ALPHA_SEEDS[$alpha]="1"
-done
+# Set the GPU (only GPU 0 is available)
+export CUDA_VISIBLE_DEVICES=0
 
 counter=0
 
-# Loop over each alpha and its corresponding seed (only seed 1).
-for ALPHA in "${ALPHAS_LIST[@]}"; do
-    SEEDS=${ALPHA_SEEDS[$ALPHA]}
-    for SEED in $SEEDS; do
+# Loop over each seed and alpha value
+for SEED in "${SEEDS[@]}"; do
+    for ALPHA in "${ALPHAS[@]}"; do
         # Construct run name: sac_hopper-v4-seed-X-alpha-Y
         RUN_NAME="sac_hopper-v4-seed-${SEED}-alpha-${ALPHA}"
         echo "Launching experiment ${RUN_NAME}"
 
         # Run the experiment in the background.
-        python cleanrl/cleanrl/meow_continuous_action.py \
+        python cleanrl/cleanrl/sac_continuous_action.py \
             --seed ${SEED} \
             --total_timesteps 2500000 \
             --learning_starts 5000 \
@@ -39,6 +33,7 @@ for ALPHA in "${ALPHAS_LIST[@]}"; do
             --no-autotune \
             --env_id Hopper-v4 \
             --exp_name hopper-v4 \
+            --run_name ${RUN_NAME} \
             --track \
             --torch_deterministic \
             --cuda \
@@ -49,18 +44,14 @@ for ALPHA in "${ALPHAS_LIST[@]}"; do
             --gamma 0.99 \
             --tau 0.005 \
             --batch_size 256 \
-            --q_lr 1e-3 \
+            --policy_lr 3e-4 \
+            --q_lr 3e-4 \
             --policy_frequency 2 \
-            --target_network_frequency 1 \
-            --noise_clip 0.5 \
-            --grad_clip 30 \
-            --sigma_max -0.3 \
-            --sigma_min -5.0 \
-            --no-deterministic_action  &
+            --target_network_frequency 1 &
 
         ((counter++))
 
-        # Wait after launching 2 experiments concurrently.
+        # After launching 2 experiments, wait for them to finish.
         if (( counter % 2 == 0 )); then
             wait
         fi
@@ -69,3 +60,4 @@ done
 
 # Wait for any remaining background processes to finish.
 wait
+

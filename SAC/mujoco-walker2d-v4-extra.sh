@@ -1,36 +1,33 @@
 #!/bin/bash
-# This script runs SAC experiments locally on 1 GPU,
+# This script runs SAC experiments on 1 GPU,
 # with 2 experiments running concurrently.
 
 # Load necessary modules and activate the Conda environment
 module purge
 module load anaconda3/2024.6
 conda activate similar-behavior
-
-# Set the GPU to use (only 1 GPU available)
-export CUDA_VISIBLE_DEVICES=0
 export WANDB_MODE=offline
 
-
-# Sweep parameters
-SEEDS=(1 2)
-ALPHAS=(0 0.1 0.2 0.3 0.4 0.5 0.6)
+# Define the alphas and seeds to sweep
+alphas=(0 0.1 0.2 0.3 0.4 0.5 0.6)
+seeds=(3 4)
 
 counter=0
 
-# Loop over each seed and alpha value
-for SEED in "${SEEDS[@]}"; do
-    for ALPHA in "${ALPHAS[@]}"; do
-        # Construct run name: sac_walker2d-v4-seed-X-alpha-Y
-        RUN_NAME="sac_walker2d-v4-seed-${SEED}-alpha-${ALPHA}"
+# Loop over each alpha value
+for alpha in "${alphas[@]}"; do
+    # Loop over each specified seed for the given alpha
+    for seed in "${seeds[@]}"; do
+        # Construct a unique run name
+        RUN_NAME="sac_walker2d-v4-seed-${seed}-alpha-${alpha}"
         echo "Launching experiment ${RUN_NAME} on GPU 0"
-
-        # Run the experiment in the background.
-        python cleanrl/cleanrl/sac_continuous_action.py \
-            --seed ${SEED} \
+        
+        # Launch the experiment in the background using GPU 0
+        env CUDA_VISIBLE_DEVICES=0 python cleanrl/cleanrl/sac_continuous_action.py \
+            --seed ${seed} \
             --total_timesteps 5000000 \
             --learning_starts 5000 \
-            --alpha ${ALPHA} \
+            --alpha ${alpha} \
             --no-autotune \
             --env_id Walker2d-v4 \
             --exp_name walker2d-v4 \
@@ -49,15 +46,14 @@ for SEED in "${SEEDS[@]}"; do
             --q_lr 3e-4 \
             --policy_frequency 2 \
             --target_network_frequency 1 &
-
+        
         ((counter++))
-
-        # Launch in batches of 2 concurrently.
+        # Limit concurrent experiments to 2 at a time
         if (( counter % 2 == 0 )); then
             wait
         fi
     done
 done
 
-# Wait for any remaining background processes to finish.
+# Wait for any remaining background processes to finish
 wait

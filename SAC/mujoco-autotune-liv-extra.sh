@@ -1,43 +1,46 @@
 #!/bin/bash
 # This script runs SAC experiments locally on 1 GPU,
-# launching 2 experiments concurrently on GPU 0.
+# with 2 experiments running concurrently.
 
 # Load necessary modules and activate the Conda environment
 module purge
 module load anaconda3/2024.6
 conda activate similar-behavior
 
-# Sweep parameters
-SEEDS=(1 2)
-ALPHAS=(0 0.1 0.2 0.3 0.4 0.5 0.6)
 export WANDB_MODE=offline
 
-# Set the GPU (only GPU 0 is available)
-export CUDA_VISIBLE_DEVICES=0
+# Define parameters
+SEEDS=(1 2 3 4 5)
+ENVS=("Ant-v4" "Walker2d-v4")
+ALPHA=1
 
 counter=0
 
-# Loop over each seed and alpha value
-for SEED in "${SEEDS[@]}"; do
-    for ALPHA in "${ALPHAS[@]}"; do
-        # Construct run name: sac_hopper-v4-seed-X-alpha-Y
-        RUN_NAME="sac_hopper-v4-seed-${SEED}-alpha-${ALPHA}"
-        echo "Launching experiment ${RUN_NAME}"
+# Loop over each environment.
+for ENV in "${ENVS[@]}"; do
+    # Loop over each seed.
+    for SEED in "${SEEDS[@]}"; do
+        # Since we have 1 GPU, assign it always.
+        gpu_id=0
+        
+        # Construct the run name.
+        RUN_NAME="sac-${ENV}-seed-${SEED}-alpha-${ALPHA}"
+        echo "Launching experiment ${RUN_NAME} on GPU ${gpu_id}"
 
-        # Run the experiment in the background.
-        python cleanrl/cleanrl/sac_continuous_action.py \
+        # Launch the experiment with the assigned GPU.
+        CUDA_VISIBLE_DEVICES=${gpu_id} python cleanrl/cleanrl/sac_continuous_action-liv-autotune.py \
             --seed ${SEED} \
-            --total_timesteps 2500000 \
+            --total_timesteps 5000000 \
             --learning_starts 5000 \
+            --autotune \
             --alpha ${ALPHA} \
-            --no-autotune \
-            --env_id Hopper-v4 \
-            --exp_name hopper-v4 \
+            --env_id ${ENV} \
+            --exp_name ${ENV} \
             --run_name ${RUN_NAME} \
             --track \
             --torch_deterministic \
             --cuda \
-            --wandb_project_name hopper-v4 \
+            --wandb_project_name autotune \
             --no-capture_video \
             --num_envs 1 \
             --buffer_size 1000000 \
@@ -48,10 +51,10 @@ for SEED in "${SEEDS[@]}"; do
             --q_lr 3e-4 \
             --policy_frequency 2 \
             --target_network_frequency 1 &
-
+        
         ((counter++))
 
-        # After launching 2 experiments, wait for them to finish.
+        # Once 2 experiments are launched, wait for the batch to finish.
         if (( counter % 2 == 0 )); then
             wait
         fi
@@ -60,4 +63,3 @@ done
 
 # Wait for any remaining background processes to finish.
 wait
-

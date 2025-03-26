@@ -9,9 +9,10 @@ conda activate similar-behavior
 
 # Only one GPU available: assign GPU 0 for all experiments.
 export CUDA_VISIBLE_DEVICES=0
+export WANDB_MODE=offline
 
 # Sweep parameters
-SEEDS=(3 5)
+SEEDS=(2 3)
 ALPHAS=(0.2 0.3 0.4 0.5 0.6 0 0.1)
 
 counter=0

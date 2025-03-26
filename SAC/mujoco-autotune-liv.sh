@@ -10,8 +10,8 @@ conda activate similar-behavior
 export WANDB_MODE=offline
 
 # Define parameters
-SEEDS=(1 2 3 4 5)
-ENVS=("Hopper-v4" "Ant-v4" "HalfCheetah-v4" "Walker2d-v4")
+SEEDS=(1 2)
+ENVS=("Hopper-v4" "HalfCheetah-v4" "Walker2d-v4" "Ant-v4")
 ALPHA=1
 
 counter=0

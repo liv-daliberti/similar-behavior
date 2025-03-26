@@ -1,42 +1,33 @@
 #!/bin/bash
-#SBATCH --job-name=meow_ant-v4   # Job name
-#SBATCH --nodes=1                # Node count
-#SBATCH --ntasks=1               # Total number of tasks across all nodes
-#SBATCH --cpus-per-task=1        # CPU cores per task
-#SBATCH --mem=16G                # Memory per CPU core
-#SBATCH --gres=gpu:1             # Number of GPUs per node
-#SBATCH --time=128:00:00          # Time limit (HH:MM:SS)
-#SBATCH --mail-type=begin        # Send email when the job starts
-#SBATCH --mail-type=end          # Send email when the job ends
-#SBATCH --mail-user=od2961@princeton.edu  # Your email for notifications
-
-# This script runs MEOW experiments on 1 GPU sequentially,
-# running seed 1 across all specified α values.
+# This script runs SAC experiments on 1 GPU,
+# with 2 experiments running concurrently, for Ant-v4.
 
 # Load necessary modules and activate the Conda environment
 module purge
 module load anaconda3/2024.6
 conda activate similar-behavior
-export WANDB_MODE=offline
 
 # Only one GPU available: assign GPU 0 for all experiments.
 export CUDA_VISIBLE_DEVICES=0
+export WANDB_MODE=offline
 
-# Sweep parameters for Ant-v4: run seed 1 across all α values.
-SEEDS=(1)
+# Sweep parameters
+SEEDS=(1 2)
 ALPHAS=(0.2 0.175 0.15 0.125 0.1 0.075 0.05 0.025 0)
 
-# Loop over each seed and alpha value sequentially.
+counter=0
+
+# Loop over each seed and alpha value
 for SEED in "${SEEDS[@]}"; do
     for ALPHA in "${ALPHAS[@]}"; do
-        # Construct run name, e.g.: meow_ant-v4-seed-1-alpha-0.2
+        # Construct run name e.g.: sac_ant-v4-seed-X-alpha-Y
         RUN_NAME="meow_ant-v4-seed-${SEED}-alpha-${ALPHA}"
         echo "Launching experiment ${RUN_NAME}"
-        
-        # Run the experiment.
+
+        # Run the experiment in the background.
         python cleanrl/cleanrl/meow_continuous_action.py \
             --seed ${SEED} \
-            --total_timesteps 2500000 \
+            --total_timesteps 5000000 \
             --learning_starts 5000 \
             --alpha ${ALPHA} \
             --no-autotune \
@@ -59,6 +50,16 @@ for SEED in "${SEEDS[@]}"; do
             --grad_clip 30 \
             --sigma_max -0.3 \
             --sigma_min -5.0 \
-            --no-deterministic_action
+            --no-deterministic_action &
+
+        ((counter++))
+
+        # Wait after launching 2 experiments concurrently.
+        if (( counter % 2 == 0 )); then
+            wait
+        fi
     done
 done
+
+# Wait for any remaining background processes to finish.
+wait

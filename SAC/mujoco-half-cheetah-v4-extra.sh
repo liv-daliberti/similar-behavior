@@ -19,23 +19,23 @@ for alpha in "${alphas[@]}"; do
     # Loop over each specified seed for the given alpha
     for seed in "${seeds[@]}"; do
         # Construct a unique run name
-        RUN_NAME="sac_ant-v4-seed-${seed}-alpha-${alpha}"
+        RUN_NAME="sac_halfcheetah-v4-seed-${seed}-alpha-${alpha}"
         echo "Launching experiment ${RUN_NAME} on GPU 0"
         
         # Launch the experiment in the background using GPU 0
         env CUDA_VISIBLE_DEVICES=0 python cleanrl/cleanrl/sac_continuous_action.py \
             --seed ${seed} \
-            --total_timesteps 10000000 \
+            --total_timesteps 5000000 \
             --learning_starts 5000 \
             --alpha ${alpha} \
             --no-autotune \
-            --env_id Ant-v4 \
-            --exp_name ant-v4 \
+            --env_id HalfCheetah-v4 \
+            --exp_name halfcheetah-v4 \
             --run_name ${RUN_NAME} \
             --track \
             --torch_deterministic \
             --cuda \
-            --wandb_project_name ant-v4 \
+            --wandb_project_name halfcheetah-v4 \
             --no-capture_video \
             --num_envs 1 \
             --buffer_size 1000000 \
