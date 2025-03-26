@@ -39,7 +39,6 @@ class DictToBoxObservation(gym.ObservationWrapper):
             ]
         )
 
-
 @dataclass
 class Args:
     exp_name: str = os.path.basename(__file__)[: -len(".py")]
@@ -91,20 +90,6 @@ class Args:
     run_name: str = "Run_Name"
     liv_autotune: bool = True
 
-
-#def make_env(env_id, seed, idx, capture_video, run_name):
-#    def thunk():
-#        if capture_video and idx == 0:
-#            env = gym.make(env_id, render_mode="rgb_array")
-#            env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
-#        else:
-#            env = gym.make(env_id)
-#        env = gym.wrappers.RecordEpisodeStatistics(env)
-#        env.action_space.seed(seed)
-#        return env
-#
-#    return thunk
-
 def make_env(env_id, seed, idx, capture_video, run_name):
     def thunk():
         env = gym.make(env_id)
@@ -121,7 +106,7 @@ class SoftQNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
         self.fc1 = nn.Linear(
-            np.array(env.single_observation_space.shape).prod() + np.prod(env.single_action_space.shape),
+            int(np.prod(env.single_observation_space.shape)) + int(np.prod(env.single_action_space.shape)),
             256,
         )
         self.fc2 = nn.Linear(256, 256)
@@ -134,18 +119,16 @@ class SoftQNetwork(nn.Module):
         x = self.fc3(x)
         return x
 
-
 LOG_STD_MAX = 2
 LOG_STD_MIN = -5
-
 
 class Actor(nn.Module):
     def __init__(self, env):
         super().__init__()
-        self.fc1 = nn.Linear(np.array(env.single_observation_space.shape).prod(), 256)
+        self.fc1 = nn.Linear(int(np.prod(env.single_observation_space.shape)), 256)
         self.fc2 = nn.Linear(256, 256)
-        self.fc_mean = nn.Linear(256, np.prod(env.single_action_space.shape))
-        self.fc_logstd = nn.Linear(256, np.prod(env.single_action_space.shape))
+        self.fc_mean = nn.Linear(256, int(np.prod(env.single_action_space.shape)))
+        self.fc_logstd = nn.Linear(256, int(np.prod(env.single_action_space.shape)))
         # action rescaling
         self.register_buffer(
             "action_scale",
@@ -175,7 +158,7 @@ class Actor(nn.Module):
         mean, log_std = self(x)
         std = log_std.exp()
         normal = torch.distributions.Normal(mean, std)
-        x_t = normal.rsample()  # for reparameterization trick (mean + std * N(0,1))
+        x_t = normal.rsample()  # for reparameterization trick
         y_t = torch.tanh(x_t)
         action = y_t * self.action_scale + self.action_bias
         log_prob = normal.log_prob(x_t)
@@ -184,7 +167,6 @@ class Actor(nn.Module):
         log_prob = log_prob.sum(1, keepdim=True)
         mean = torch.tanh(mean) * self.action_scale + self.action_bias
         return action, log_prob, mean
-
 
 if __name__ == "__main__":
     import stable_baselines3 as sb3
@@ -200,7 +182,6 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     run_name = f"{args.env_id}__{args.exp_name}__{args.seed}__{args.alpha}__{int(time.time())}"
     if args.track:
         import wandb
-
         wandb.init(
             project=args.wandb_project_name,
             entity=args.wandb_entity,
@@ -244,7 +225,6 @@ poetry run pip install "stable_baselines3==2.0.0a1"
 
     # Custom automatic tuning based on Q-value differences:
     if args.autotune:
-        # Start with the maximum alpha value defined in args
         alpha = args.alpha
     else:
         alpha = args.alpha
@@ -260,20 +240,20 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     )
     start_time = time.time()
 
-    # TRY NOT TO MODIFY: start the game
     obs, _ = envs.reset(seed=args.seed)
     for global_step in range(args.total_timesteps):
         # ALGO LOGIC: action logic
         if global_step < args.learning_starts:
             actions = np.array([envs.single_action_space.sample() for _ in range(envs.num_envs)])
         else:
-            actions, _, _ = actor.get_action(torch.Tensor(obs).to(device))
+            # Convert observations to float tensor before passing to the actor.
+            obs_tensor = torch.tensor(obs, dtype=torch.float32, device=device)
+            actions, _, _ = actor.get_action(obs_tensor)
             actions = actions.detach().cpu().numpy()
 
-        # Execute the game and log data.
         next_obs, rewards, terminations, truncations, infos = envs.step(actions)
 
-        # Record rewards for plotting purposes
+        # Logging episodic rewards
         if "final_info" in infos:
             for info in infos["final_info"]:
                 if info is not None:
@@ -282,57 +262,57 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     writer.add_scalar("charts/episodic_length", info["episode"]["l"], global_step)
                     break
 
-        # Save data to replay buffer; handle `final_observation`
+        # Handle truncated episodes
         real_next_obs = next_obs.copy()
         for idx, trunc in enumerate(truncations):
             if trunc:
                 real_next_obs[idx] = infos["final_observation"][idx]
         rb.add(obs, real_next_obs, actions, rewards, terminations, infos)
 
-        # Crucial step: update observation
         obs = next_obs
 
         # ALGO LOGIC: training.
         if global_step > args.learning_starts:
             data = rb.sample(args.batch_size)
-            with torch.no_grad():
-                next_state_actions, next_state_log_pi, _ = actor.get_action(data.next_observations)
-                qf1_next_target = qf1_target(data.next_observations, next_state_actions)
-                qf2_next_target = qf2_target(data.next_observations, next_state_actions)
-                min_qf_next_target = torch.min(qf1_next_target, qf2_next_target) - alpha * next_state_log_pi
-                next_q_value = data.rewards.flatten() + (1 - data.dones.flatten()) * args.gamma * (min_qf_next_target).view(-1)
+            # Convert replay buffer data to float32
+            obs_tensor = data.observations.to(torch.float32)
+            next_obs_tensor = data.next_observations.to(torch.float32)
+            actions_tensor = data.actions.to(torch.float32)
+            rewards_tensor = data.rewards.to(torch.float32)
+            dones_tensor = data.dones.to(torch.float32)
 
-            qf1_a_values = qf1(data.observations, data.actions).view(-1)
-            qf2_a_values = qf2(data.observations, data.actions).view(-1)
+            with torch.no_grad():
+                next_state_actions, next_state_log_pi, _ = actor.get_action(next_obs_tensor)
+                qf1_next_target = qf1_target(next_obs_tensor, next_state_actions)
+                qf2_next_target = qf2_target(next_obs_tensor, next_state_actions)
+                min_qf_next_target = torch.min(qf1_next_target, qf2_next_target) - alpha * next_state_log_pi
+                next_q_value = rewards_tensor.flatten() + (1 - dones_tensor.flatten()) * args.gamma * min_qf_next_target.view(-1)
+
+            qf1_a_values = qf1(obs_tensor, actions_tensor).view(-1)
+            qf2_a_values = qf2(obs_tensor, actions_tensor).view(-1)
             qf1_loss = F.mse_loss(qf1_a_values, next_q_value)
             qf2_loss = F.mse_loss(qf2_a_values, next_q_value)
             qf_loss = qf1_loss + qf2_loss
 
-            # Optimize Q networks
             q_optimizer.zero_grad()
             qf_loss.backward()
             q_optimizer.step()
 
             # ---- Custom Alpha Update Based on Q Difference ----
             if args.autotune:
-                # Compute the average absolute difference between the two Q networks.
                 diff = torch.abs(qf1_a_values - qf2_a_values).mean().item()
-                # Calibration constant controlling sensitivity (adjust as needed)
                 c = 1.0
-                # Compute target alpha: when diff is high, target_alpha nears args.alpha; when diff is low, target_alpha nears 0.
                 target_alpha = args.alpha * (diff / (diff + c))
-                # Smooth the update to avoid abrupt changes.
                 smoothing = 0.1
                 alpha = smoothing * target_alpha + (1 - smoothing) * alpha
-                # Clamp alpha between 0 and args.alpha.
                 alpha = max(0.0, min(alpha, args.alpha))
             # ----------------------------------------------------
 
-            if global_step % args.policy_frequency == 0:  # TD3 Delayed update support
+            if global_step % args.policy_frequency == 0:
                 for _ in range(args.policy_frequency):
-                    pi, log_pi, _ = actor.get_action(data.observations)
-                    qf1_pi = qf1(data.observations, pi)
-                    qf2_pi = qf2(data.observations, pi)
+                    pi, log_pi, _ = actor.get_action(obs_tensor)
+                    qf1_pi = qf1(obs_tensor, pi)
+                    qf2_pi = qf2(obs_tensor, pi)
                     min_qf_pi = torch.min(qf1_pi, qf2_pi)
                     actor_loss = ((alpha * log_pi) - min_qf_pi).mean()
 
@@ -340,7 +320,6 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     actor_loss.backward()
                     actor_optimizer.step()
 
-            # Update the target networks
             if global_step % args.target_network_frequency == 0:
                 for param, target_param in zip(qf1.parameters(), qf1_target.parameters()):
                     target_param.data.copy_(args.tau * param.data + (1 - args.tau) * target_param.data)
@@ -370,7 +349,6 @@ poetry run pip install "stable_baselines3==2.0.0a1"
                     'q_optimizer_state_dict': q_optimizer.state_dict(),
                     'args': vars(args)
                 }
-                # Save checkpoint to wandb run directory if tracking.
                 if args.track:
                     checkpoint_path = os.path.join(wandb.run.dir, "files", f"{run_name}_step{global_step}.pth")
                     os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
