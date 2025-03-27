@@ -44,7 +44,7 @@ for ENV in "${ENVS[@]}"; do
             echo "Launching experiment ${RUN_NAME} on GPU ${gpu_id}"
 
             # Launch the experiment in background.
-            CUDA_VISIBLE_DEVICES=${gpu_id} python cleanrl/cleanrl/sac_continuous_action-2.py \
+            CUDA_VISIBLE_DEVICES=${gpu_id} python cleanrl/cleanrl/sac_continuous_action_2.py \
                 --seed ${SEED} \
                 --total_timesteps 10000000 \
                 --learning_starts 5000 \
