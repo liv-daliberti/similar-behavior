@@ -1,11 +1,13 @@
-module purge
-module load anaconda3/2024.6
-conda activate similar-behavior
-
+source ~/.bashrc
+conda activate similar-behavior-dm
 export WANDB_MODE=offline
+pip install -r cleanrl/requirements/requirements.txt
+pip install -r cleanrl/requirements/requirements-dm_control.txt
+pip install --upgrade typing_extensions
+pip install torch==1.12.1+cu116 torchvision==0.13.1+cu116 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu116
 
 # Sweep parameters
-SEEDS=(1 2 3 4 5)
+SEEDS=(1)
 ALPHAS=(0.2 0.3 0.4 0.5 0.6 0 0.1)
 
 counter=0
@@ -13,28 +15,23 @@ counter=0
 # Loop over each seed and alpha value
 for SEED in "${SEEDS[@]}"; do
     for ALPHA in "${ALPHAS[@]}"; do
-        # Construct run name e.g.: meow_halfcheetah-v4-seed-X-alpha-Y
-        RUN_NAME="meow_halfcheetah-v4-seed-${SEED}-alpha-${ALPHA}"
+        # Construct run name e.g.: meow_dm_control_fish-swim-v0-seed-X-alpha-Y
+        RUN_NAME="meow_dm_control_fish-swim-v0-seed-${SEED}-alpha-${ALPHA}"
         echo "Launching experiment ${RUN_NAME}"
         
-        # Determine GPU id based on counter.
-        # Two experiments per GPU are launched in a round-robin fashion across 4 GPUs.
-        GPU_ID=$(( (counter / 2) % 4 ))
-        echo "Using GPU ${GPU_ID}"
-        
-        # Launch the experiment in the background using the assigned GPU.
-        CUDA_VISIBLE_DEVICES=${GPU_ID} python cleanrl/cleanrl/meow_continuous_action.py \
+        # Use a single GPU (GPU 0)
+        CUDA_VISIBLE_DEVICES=0 python cleanrl/cleanrl/meow_continuous_action_2.py \
             --seed ${SEED} \
-            --total_timesteps 5000000 \
+            --total_timesteps 10000000 \
             --learning_starts 5000 \
             --alpha ${ALPHA} \
             --no-autotune \
-            --env_id HalfCheetah-v4 \
-            --exp_name halfcheetah-v4 \
+            --env_id dm_control/fish-swim-v0 \
+            --exp_name fish-swim-v0 \
             --track \
             --torch_deterministic \
             --cuda \
-            --wandb_project_name halfcheetah-v4 \
+            --wandb_project_name dmcontrol_fish \
             --no-capture_video \
             --num_envs 1 \
             --buffer_size 1000000 \
@@ -50,10 +47,10 @@ for SEED in "${SEEDS[@]}"; do
             --sigma_min -5.0 \
             --no-deterministic_action  &
         
-       	((counter++))
+        ((counter++))
         
-        # Wait after launching 8 experiments concurrently (2 per GPU across 4 GPUs)
-        if (( counter % 8 == 0 )); then
+        # Wait after launching two experiments concurrently
+        if (( counter % 2 == 0 )); then
             wait
         fi
     done
@@ -61,5 +58,3 @@ done
 
 # Wait for any remaining background processes to finish.
 wait
-
-
