@@ -1,0 +1,319 @@
+/u/od2961/.bashrc: line 87: /u/od2961/.local/bin/env: No such file or directory
+Ignoring importlib-metadata: markers 'python_version >= "3.8" and python_version < "3.10"' don't match your environment
+Ignoring zipp: markers 'python_version >= "3.8" and python_version < "3.10"' don't match your environment
+Requirement already satisfied: absl-py==1.4.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 1)) (1.4.0)
+Requirement already satisfied: appdirs==1.4.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 2)) (1.4.4)
+Requirement already satisfied: cachetools==5.3.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 3)) (5.3.0)
+Requirement already satisfied: certifi==2023.5.7 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 4)) (2023.5.7)
+Requirement already satisfied: charset-normalizer==3.1.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 5)) (3.1.0)
+Requirement already satisfied: click==8.1.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 6)) (8.1.3)
+Requirement already satisfied: cloudpickle==2.2.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 7)) (2.2.1)
+Requirement already satisfied: colorama==0.4.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 8)) (0.4.4)
+Requirement already satisfied: commonmark==0.9.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 9)) (0.9.1)
+Requirement already satisfied: cycler==0.11.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 10)) (0.11.0)
+Requirement already satisfied: decorator==4.4.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 11)) (4.4.2)
+Requirement already satisfied: docker-pycreds==0.4.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 12)) (0.4.0)
+Requirement already satisfied: docstring-parser==0.15 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 13)) (0.15)
+Requirement already satisfied: farama-notifications==0.0.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 14)) (0.0.4)
+Requirement already satisfied: filelock==3.12.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 15)) (3.12.0)
+Requirement already satisfied: fonttools==4.38.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 16)) (4.38.0)
+Requirement already satisfied: gitdb==4.0.10 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 17)) (4.0.10)
+Requirement already satisfied: gitpython==3.1.31 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 18)) (3.1.31)
+Requirement already satisfied: google-auth-oauthlib==0.4.6 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 19)) (0.4.6)
+Requirement already satisfied: google-auth==2.18.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 20)) (2.18.0)
+Requirement already satisfied: grpcio==1.54.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 21)) (1.54.0)
+Requirement already satisfied: gym-notices==0.0.8 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 22)) (0.0.8)
+Requirement already satisfied: gym==0.23.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 23)) (0.23.1)
+Requirement already satisfied: gymnasium==0.28.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 24)) (0.28.1)
+Requirement already satisfied: huggingface-hub==0.11.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 25)) (0.11.1)
+Requirement already satisfied: idna==3.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 26)) (3.4)
+Requirement already satisfied: imageio-ffmpeg==0.3.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 27)) (0.3.0)
+Requirement already satisfied: imageio==2.28.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 28)) (2.28.1)
+Requirement already satisfied: jax-jumpy==1.0.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 30)) (1.0.0)
+Requirement already satisfied: kiwisolver==1.4.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 31)) (1.4.4)
+Requirement already satisfied: markdown==3.3.7 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 32)) (3.3.7)
+Requirement already satisfied: markupsafe==2.1.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 33)) (2.1.2)
+Requirement already satisfied: matplotlib==3.5.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 34)) (3.5.3)
+Requirement already satisfied: moviepy==1.0.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 35)) (1.0.3)
+Requirement already satisfied: numpy==1.24.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 36)) (1.24.4)
+Requirement already satisfied: oauthlib==3.2.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 37)) (3.2.2)
+Requirement already satisfied: packaging==23.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 38)) (23.1)
+Requirement already satisfied: pandas==1.3.5 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 39)) (1.3.5)
+Requirement already satisfied: pathtools==0.1.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 40)) (0.1.2)
+Requirement already satisfied: pillow==9.5.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 41)) (9.5.0)
+Requirement already satisfied: proglog==0.1.10 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 42)) (0.1.10)
+Requirement already satisfied: protobuf==3.20.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 43)) (3.20.3)
+Requirement already satisfied: psutil==5.9.5 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 44)) (5.9.5)
+Requirement already satisfied: pyasn1-modules==0.3.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 45)) (0.3.0)
+Requirement already satisfied: pyasn1==0.5.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 46)) (0.5.0)
+Requirement already satisfied: pygame==2.1.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 47)) (2.1.0)
+Requirement already satisfied: pygments==2.15.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 48)) (2.15.1)
+Requirement already satisfied: pyparsing==3.0.9 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 49)) (3.0.9)
+Requirement already satisfied: python-dateutil==2.8.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 50)) (2.8.2)
+Requirement already satisfied: pytz==2023.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 51)) (2023.3)
+Requirement already satisfied: pyyaml==6.0.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 52)) (6.0.1)
+Requirement already satisfied: requests-oauthlib==1.3.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 53)) (1.3.1)
+Requirement already satisfied: requests==2.30.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 54)) (2.30.0)
+Requirement already satisfied: rich==11.2.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 55)) (11.2.0)
+Requirement already satisfied: rsa==4.7.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 56)) (4.7.2)
+Requirement already satisfied: sentry-sdk==1.22.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 57)) (1.22.2)
+Requirement already satisfied: setproctitle==1.3.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 58)) (1.3.2)
+Requirement already satisfied: setuptools==67.7.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 59)) (67.7.2)
+Requirement already satisfied: shtab==1.6.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 60)) (1.6.4)
+Requirement already satisfied: six==1.16.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 61)) (1.16.0)
+Requirement already satisfied: smmap==5.0.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 62)) (5.0.0)
+Requirement already satisfied: stable-baselines3==2.0.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 63)) (2.0.0)
+Requirement already satisfied: tenacity==8.2.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 64)) (8.2.3)
+Requirement already satisfied: tensorboard-data-server==0.6.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 65)) (0.6.1)
+Requirement already satisfied: tensorboard-plugin-wit==1.8.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 66)) (1.8.1)
+Requirement already satisfied: tensorboard==2.11.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 67)) (2.11.2)
+Requirement already satisfied: torch==1.12.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 68)) (1.12.1+cu116)
+Requirement already satisfied: tqdm==4.65.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 69)) (4.65.0)
+Collecting typing-extensions==4.5.0 (from -r cleanrl/requirements/requirements.txt (line 70))
+  Using cached typing_extensions-4.5.0-py3-none-any.whl.metadata (8.5 kB)
+Requirement already satisfied: tyro==0.5.10 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 71)) (0.5.10)
+Requirement already satisfied: urllib3==1.26.15 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 72)) (1.26.15)
+Requirement already satisfied: wandb==0.13.11 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 73)) (0.13.11)
+Requirement already satisfied: werkzeug==2.2.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 74)) (2.2.3)
+Requirement already satisfied: wheel==0.40.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements.txt (line 75)) (0.40.0)
+Using cached typing_extensions-4.5.0-py3-none-any.whl (27 kB)
+Installing collected packages: typing-extensions
+  Attempting uninstall: typing-extensions
+    Found existing installation: typing_extensions 4.13.0
+    Uninstalling typing_extensions-4.13.0:
+      Successfully uninstalled typing_extensions-4.13.0
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+pydantic 2.10.6 requires typing-extensions>=4.12.2, but you have typing-extensions 4.5.0 which is incompatible.
+pydantic-core 2.27.2 requires typing-extensions!=4.7.0,>=4.6.0, but you have typing-extensions 4.5.0 which is incompatible.
+Successfully installed typing-extensions-4.5.0
+Ignoring importlib-metadata: markers 'python_version >= "3.8" and python_version < "3.10"' don't match your environment
+Ignoring zipp: markers 'python_version >= "3.8" and python_version < "3.10"' don't match your environment
+Requirement already satisfied: absl-py==1.4.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 1)) (1.4.0)
+Requirement already satisfied: appdirs==1.4.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 2)) (1.4.4)
+Requirement already satisfied: cachetools==5.3.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 3)) (5.3.0)
+Requirement already satisfied: certifi==2023.5.7 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 4)) (2023.5.7)
+Requirement already satisfied: charset-normalizer==3.1.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 5)) (3.1.0)
+Requirement already satisfied: click==8.1.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 6)) (8.1.3)
+Requirement already satisfied: cloudpickle==2.2.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 7)) (2.2.1)
+Requirement already satisfied: colorama==0.4.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 8)) (0.4.4)
+Requirement already satisfied: commonmark==0.9.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 9)) (0.9.1)
+Requirement already satisfied: cycler==0.11.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 10)) (0.11.0)
+Requirement already satisfied: decorator==4.4.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 11)) (4.4.2)
+Requirement already satisfied: dm-control==1.0.11 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 12)) (1.0.11)
+Requirement already satisfied: dm-env==1.6 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 13)) (1.6)
+Requirement already satisfied: dm-tree==0.1.8 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 14)) (0.1.8)
+Requirement already satisfied: docker-pycreds==0.4.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 15)) (0.4.0)
+Requirement already satisfied: docstring-parser==0.15 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 16)) (0.15)
+Requirement already satisfied: farama-notifications==0.0.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 17)) (0.0.4)
+Requirement already satisfied: filelock==3.12.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 18)) (3.12.0)
+Requirement already satisfied: fonttools==4.38.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 19)) (4.38.0)
+Requirement already satisfied: gitdb==4.0.10 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 20)) (4.0.10)
+Requirement already satisfied: gitpython==3.1.31 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 21)) (3.1.31)
+Requirement already satisfied: glfw==1.12.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 22)) (1.12.0)
+Requirement already satisfied: google-auth-oauthlib==0.4.6 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 23)) (0.4.6)
+Requirement already satisfied: google-auth==2.18.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 24)) (2.18.0)
+Requirement already satisfied: grpcio==1.54.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 25)) (1.54.0)
+Requirement already satisfied: gym-notices==0.0.8 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 26)) (0.0.8)
+Requirement already satisfied: gym==0.23.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 27)) (0.23.1)
+Requirement already satisfied: gymnasium==0.28.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 28)) (0.28.1)
+Requirement already satisfied: h5py==3.8.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 29)) (3.8.0)
+Requirement already satisfied: huggingface-hub==0.11.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 30)) (0.11.1)
+Requirement already satisfied: idna==3.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 31)) (3.4)
+Requirement already satisfied: imageio-ffmpeg==0.3.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 32)) (0.3.0)
+Requirement already satisfied: imageio==2.28.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 33)) (2.28.1)
+Requirement already satisfied: jax-jumpy==1.0.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 35)) (1.0.0)
+Requirement already satisfied: kiwisolver==1.4.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 36)) (1.4.4)
+Requirement already satisfied: labmaze==1.0.6 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 37)) (1.0.6)
+Requirement already satisfied: lxml==4.9.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 38)) (4.9.3)
+Requirement already satisfied: markdown==3.3.7 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 39)) (3.3.7)
+Requirement already satisfied: markupsafe==2.1.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 40)) (2.1.2)
+Requirement already satisfied: matplotlib==3.5.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 41)) (3.5.3)
+Requirement already satisfied: moviepy==1.0.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 42)) (1.0.3)
+Requirement already satisfied: mujoco==2.3.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 43)) (2.3.3)
+Requirement already satisfied: numpy==1.24.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 44)) (1.24.4)
+Requirement already satisfied: oauthlib==3.2.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 45)) (3.2.2)
+Requirement already satisfied: packaging==23.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 46)) (23.1)
+Requirement already satisfied: pandas==1.3.5 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 47)) (1.3.5)
+Requirement already satisfied: pathtools==0.1.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 48)) (0.1.2)
+Requirement already satisfied: pillow==9.5.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 49)) (9.5.0)
+Requirement already satisfied: proglog==0.1.10 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 50)) (0.1.10)
+Requirement already satisfied: protobuf==3.20.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 51)) (3.20.3)
+Requirement already satisfied: psutil==5.9.5 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 52)) (5.9.5)
+Requirement already satisfied: pyasn1-modules==0.3.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 53)) (0.3.0)
+Requirement already satisfied: pyasn1==0.5.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 54)) (0.5.0)
+Requirement already satisfied: pygame==2.1.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 55)) (2.1.0)
+Requirement already satisfied: pygments==2.15.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 56)) (2.15.1)
+Requirement already satisfied: pyopengl==3.1.6 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 57)) (3.1.6)
+Requirement already satisfied: pyparsing==3.0.9 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 58)) (3.0.9)
+Requirement already satisfied: python-dateutil==2.8.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 59)) (2.8.2)
+Requirement already satisfied: pytz==2023.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 60)) (2023.3)
+Requirement already satisfied: pyyaml==6.0.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 61)) (6.0.1)
+Requirement already satisfied: requests-oauthlib==1.3.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 62)) (1.3.1)
+Requirement already satisfied: requests==2.30.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 63)) (2.30.0)
+Requirement already satisfied: rich==11.2.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 64)) (11.2.0)
+Requirement already satisfied: rsa==4.7.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 65)) (4.7.2)
+Requirement already satisfied: scipy==1.10.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 66)) (1.10.1)
+Requirement already satisfied: sentry-sdk==1.22.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 67)) (1.22.2)
+Requirement already satisfied: setproctitle==1.3.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 68)) (1.3.2)
+Requirement already satisfied: setuptools==67.7.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 69)) (67.7.2)
+Requirement already satisfied: shimmy==1.1.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 70)) (1.1.0)
+Requirement already satisfied: shtab==1.6.4 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 71)) (1.6.4)
+Requirement already satisfied: six==1.16.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 72)) (1.16.0)
+Requirement already satisfied: smmap==5.0.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 73)) (5.0.0)
+Requirement already satisfied: stable-baselines3==2.0.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 74)) (2.0.0)
+Requirement already satisfied: tenacity==8.2.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 75)) (8.2.3)
+Requirement already satisfied: tensorboard-data-server==0.6.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 76)) (0.6.1)
+Requirement already satisfied: tensorboard-plugin-wit==1.8.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 77)) (1.8.1)
+Requirement already satisfied: tensorboard==2.11.2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 78)) (2.11.2)
+Requirement already satisfied: torch==1.12.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 79)) (1.12.1+cu116)
+Requirement already satisfied: tqdm==4.65.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 80)) (4.65.0)
+Requirement already satisfied: typing-extensions==4.5.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 81)) (4.5.0)
+Requirement already satisfied: tyro==0.5.10 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 82)) (0.5.10)
+Requirement already satisfied: urllib3==1.26.15 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 83)) (1.26.15)
+Requirement already satisfied: wandb==0.13.11 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 84)) (0.13.11)
+Requirement already satisfied: werkzeug==2.2.3 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 85)) (2.2.3)
+Requirement already satisfied: wheel==0.40.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from -r cleanrl/requirements/requirements-dm_control.txt (line 86)) (0.40.0)
+Requirement already satisfied: typing_extensions in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (4.5.0)
+Collecting typing_extensions
+  Using cached typing_extensions-4.13.0-py3-none-any.whl.metadata (3.0 kB)
+Using cached typing_extensions-4.13.0-py3-none-any.whl (45 kB)
+Installing collected packages: typing_extensions
+  Attempting uninstall: typing_extensions
+    Found existing installation: typing_extensions 4.5.0
+    Uninstalling typing_extensions-4.5.0:
+      Successfully uninstalled typing_extensions-4.5.0
+Successfully installed typing_extensions-4.13.0
+Looking in indexes: https://pypi.org/simple, https://download.pytorch.org/whl/cu116
+Requirement already satisfied: torch==1.12.1+cu116 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (1.12.1+cu116)
+Requirement already satisfied: torchvision==0.13.1+cu116 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (0.13.1+cu116)
+Requirement already satisfied: torchaudio==0.12.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (0.12.1+cu116)
+Requirement already satisfied: typing-extensions in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from torch==1.12.1+cu116) (4.13.0)
+Requirement already satisfied: numpy in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from torchvision==0.13.1+cu116) (1.24.4)
+Requirement already satisfied: requests in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from torchvision==0.13.1+cu116) (2.30.0)
+Requirement already satisfied: pillow!=8.3.*,>=5.3.0 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from torchvision==0.13.1+cu116) (9.5.0)
+Requirement already satisfied: charset-normalizer<4,>=2 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from requests->torchvision==0.13.1+cu116) (3.1.0)
+Requirement already satisfied: idna<4,>=2.5 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from requests->torchvision==0.13.1+cu116) (3.4)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from requests->torchvision==0.13.1+cu116) (1.26.15)
+Requirement already satisfied: certifi>=2017.4.17 in /n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages (from requests->torchvision==0.13.1+cu116) (2023.5.7)
+Launching experiment td3_dm_control/finger-spin-v0_seed_5
+Launching experiment td3_dm_control/cheetah-run-v0_seed_5
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/td3_continuous_action.py", line 178, in <module>
+    actor = Actor(envs).to(device)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/td3_continuous_action.py", line 108, in __init__
+    self.fc1 = nn.Linear(np.array(env.single_observation_space.shape).prod(), 256)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 96, in __init__
+    self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
+TypeError: empty(): argument 'size' must be tuple of ints, but found element of type NoneType at pos 2
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/td3_continuous_action.py", line 178, in <module>
+    actor = Actor(envs).to(device)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/td3_continuous_action.py", line 108, in __init__
+    self.fc1 = nn.Linear(np.array(env.single_observation_space.shape).prod(), 256)
+wandb: Waiting for W&B process to finish... (failed 1).
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 96, in __init__
+    self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
+TypeError: empty(): argument 'size' must be tuple of ints, but found element of type NoneType at pos 2
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: global_step ▁
+wandb: 
+wandb: Run summary:
+wandb: global_step 0
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250329_155924-a7ttp83h
+wandb: Find logs at: ./wandb/offline-run-20250329_155924-a7ttp83h/logs
+wandb: 
+wandb: Run history:
+wandb: global_step ▁
+wandb: 
+wandb: Run summary:
+wandb: global_step 0
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250329_155924-v5cyf03j
+wandb: Find logs at: ./wandb/offline-run-20250329_155924-v5cyf03j/logs
+Launching experiment td3_dm_control/fish-swim-v0_seed_5
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:4: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if not hasattr(tensorboard, "__version__") or LooseVersion(
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/utils/tensorboard/__init__.py:6: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  ) < LooseVersion("1.15"):
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:121: DeprecationWarning: pkg_resources is deprecated as an API
+  warnings.warn("pkg_resources is deprecated as an API", DeprecationWarning)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('mpl_toolkits')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/pkg_resources/__init__.py:2870: DeprecationWarning: Deprecated call to `pkg_resources.declare_namespace('google')`.
+Implementing implicit namespace packages (as specified in PEP 420) is preferred to `pkg_resources.declare_namespace`. See https://setuptools.pypa.io/en/latest/references/keywords.html#keyword-namespace-packages
+  declare_namespace(pkg)
+wandb: Tracking run with wandb version 0.13.11
+wandb: W&B syncing is set to `offline` in this directory.  
+wandb: Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/wandb/sdk/lib/import_hooks.py:243: DeprecationWarning: Deprecated since Python 3.4 and slated for removal in Python 3.12; use importlib.util.find_spec() instead
+  loader = importlib.find_loader(fullname, path)
+/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/gymnasium/utils/passive_env_checker.py:42: UserWarning: [33mWARN: A Box observation space has an unconventional shape (neither an image, nor a 1D vector). We recommend flattening the observation to have only a 1D vector or use a custom policy to properly process the data. Actual observation shape: ()[0m
+  logger.warn(
+Traceback (most recent call last):
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/td3_continuous_action.py", line 178, in <module>
+    actor = Actor(envs).to(device)
+  File "/n/fs/similarity/similar-behavior/cleanrl/cleanrl/td3_continuous_action.py", line 108, in __init__
+    self.fc1 = nn.Linear(np.array(env.single_observation_space.shape).prod(), 256)
+  File "/n/fs/similarity/.conda/envs/similar-behavior-dm/lib/python3.10/site-packages/torch/nn/modules/linear.py", line 96, in __init__
+    self.weight = Parameter(torch.empty((out_features, in_features), **factory_kwargs))
+TypeError: empty(): argument 'size' must be tuple of ints, but found element of type NoneType at pos 2
+wandb: Waiting for W&B process to finish... (failed 1).
+wandb: 
+wandb: Run history:
+wandb: global_step ▁
+wandb: 
+wandb: Run summary:
+wandb: global_step 0
+wandb: 
+wandb: You can sync this run to the cloud by running:
+wandb: wandb sync /n/fs/similarity/similar-behavior/wandb/offline-run-20250329_155941-vaw2yyi6
+wandb: Find logs at: ./wandb/offline-run-20250329_155941-vaw2yyi6/logs

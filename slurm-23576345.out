@@ -1,0 +1,2 @@
+slurmstepd: error: execve(): TD3/dm-td3-comparison-2.sh: Permission denied
+srun: error: node203: task 0: Exited with exit code 13

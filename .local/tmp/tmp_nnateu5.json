@@ -1,0 +1,24 @@
+{
+    "version": 1,
+    "storagePolicy": "wandb-storage-policy-v1",
+    "storagePolicyConfig": {
+        "storageLayout": "V2"
+    },
+    "contents": {
+        "diff.patch": {
+            "digest": "ndlDOhlVbOjP5vWaxEc3kw==",
+            "birthArtifactID": "QXJ0aWZhY3Q6MTYwODgxMDcyNw==",
+            "size": 9651272
+        },
+        "requirements.frozen.txt": {
+            "digest": "HnqmfegJxavslQPOGJBceA==",
+            "birthArtifactID": "QXJ0aWZhY3Q6MTYwNTQ1NDQ4Ng==",
+            "size": 1818
+        },
+        "wandb-job.json": {
+            "digest": "uJal7FNWUGO+rEXJUnzd/Q==",
+            "birthArtifactID": "QXJ0aWZhY3Q6MTYwNzM5ODMwMQ==",
+            "size": 4065
+        }
+    }
+}

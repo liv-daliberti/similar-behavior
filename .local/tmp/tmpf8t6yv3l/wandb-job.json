@@ -1,0 +1,140 @@
+{
+    "_version": "v0",
+    "source_type": "repo",
+    "source": {
+        "entrypoint": [
+            "python",
+            "cleanrl/cleanrl/sac_continuous_action_2.py"
+        ],
+        "git": {
+            "remote": "git@github.com:liv-daliberti/similar-behavior.git",
+            "commit": "c78cd89139cb4d6e65e2baefc7582c0bc1c79c9f"
+        }
+    },
+    "input_types": {
+        "wb_type": "typedDict",
+        "params": {
+            "type_map": {
+                "exp_name": {
+                    "wb_type": "string"
+                },
+                "seed": {
+                    "wb_type": "number"
+                },
+                "torch_deterministic": {
+                    "wb_type": "boolean"
+                },
+                "cuda": {
+                    "wb_type": "boolean"
+                },
+                "track": {
+                    "wb_type": "boolean"
+                },
+                "wandb_project_name": {
+                    "wb_type": "string"
+                },
+                "wandb_entity": {
+                    "wb_type": "none"
+                },
+                "capture_video": {
+                    "wb_type": "boolean"
+                },
+                "env_id": {
+                    "wb_type": "string"
+                },
+                "total_timesteps": {
+                    "wb_type": "number"
+                },
+                "num_envs": {
+                    "wb_type": "number"
+                },
+                "buffer_size": {
+                    "wb_type": "number"
+                },
+                "gamma": {
+                    "wb_type": "number"
+                },
+                "tau": {
+                    "wb_type": "number"
+                },
+                "batch_size": {
+                    "wb_type": "number"
+                },
+                "learning_starts": {
+                    "wb_type": "number"
+                },
+                "policy_lr": {
+                    "wb_type": "number"
+                },
+                "q_lr": {
+                    "wb_type": "number"
+                },
+                "policy_frequency": {
+                    "wb_type": "number"
+                },
+                "target_network_frequency": {
+                    "wb_type": "number"
+                },
+                "alpha": {
+                    "wb_type": "number"
+                },
+                "autotune": {
+                    "wb_type": "boolean"
+                },
+                "run_name": {
+                    "wb_type": "string"
+                }
+            }
+        }
+    },
+    "output_types": {
+        "wb_type": "typedDict",
+        "params": {
+            "type_map": {
+                "global_step": {
+                    "wb_type": "number"
+                },
+                "_timestamp": {
+                    "wb_type": "number"
+                },
+                "_runtime": {
+                    "wb_type": "number"
+                },
+                "_step": {
+                    "wb_type": "number"
+                },
+                "charts/episodic_return": {
+                    "wb_type": "number"
+                },
+                "charts/episodic_length": {
+                    "wb_type": "number"
+                },
+                "losses/qf1_values": {
+                    "wb_type": "number"
+                },
+                "losses/qf2_values": {
+                    "wb_type": "number"
+                },
+                "losses/qf1_loss": {
+                    "wb_type": "number"
+                },
+                "losses/qf2_loss": {
+                    "wb_type": "number"
+                },
+                "losses/qf_loss": {
+                    "wb_type": "number"
+                },
+                "losses/actor_loss": {
+                    "wb_type": "number"
+                },
+                "losses/alpha": {
+                    "wb_type": "number"
+                },
+                "charts/SPS": {
+                    "wb_type": "number"
+                }
+            }
+        }
+    },
+    "runtime": "3.10.16"
+}
