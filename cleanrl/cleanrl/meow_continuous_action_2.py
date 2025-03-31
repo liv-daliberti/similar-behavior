@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import random
 import time
@@ -13,13 +14,13 @@ import tyro
 from stable_baselines3.common.buffers import ReplayBuffer
 from torch.utils.tensorboard import SummaryWriter
 
-# Added DictToBoxObservation to handle DM Control's dict observations.
+# New wrapper to flatten dictionary observations (common in DM Control)
 class DictToBoxObservation(gym.ObservationWrapper):
     def __init__(self, env: gym.Env):
         super().__init__(env)
         obs_space = self.env.observation_space
         if not isinstance(obs_space, gym.spaces.Dict):
-            return  # Nothing to do if not a Dict.
+            return  # Do nothing if not a dict
         self.observation_keys = sorted(obs_space.spaces.keys())
         size = 0
         for key in self.observation_keys:
@@ -107,6 +108,7 @@ def evaluate(envs, policy, deterministic=True, device='cuda'):
         dones = np.zeros((num_envs,)).astype(bool)
         s, _ = envs.reset(seed=range(num_envs))
         while not all(dones):
+            # s should now be a flattened array (not a dict) because test envs are wrapped.
             a, _ = policy.sample(num_samples=s.shape[0], obs=s, deterministic=deterministic)
             a = a.cpu().detach().numpy()
             s_, r, terminated, truncated, _ = envs.step(a)
@@ -123,7 +125,7 @@ def make_env(env_id, seed, idx, capture_video, run_name):
             env = gym.wrappers.RecordVideo(env, f"videos/{run_name}")
         else:
             env = gym.make(env_id)
-        # Added: if the observation space is a dict (as in DM Control), flatten it.
+        # If observation space is a dict, flatten it.
         if isinstance(env.observation_space, gym.spaces.Dict):
             env = DictToBoxObservation(env)
         env = gym.wrappers.RecordEpisodeStatistics(env)
@@ -288,13 +290,13 @@ poetry run pip install "stable_baselines3==2.0.0a1"
     envs = gym.vector.SyncVectorEnv(
         [make_env(args.env_id, args.seed + i, i, args.capture_video, run_name) for i in range(args.num_envs)]
     )
-    # For testing, we use gym.make_vec; you may also wrap test envs similarly if needed.
-    test_envs = gym.make_vec(args.env_id, num_envs=10)
-    test_envs = gym.wrappers.RescaleAction(test_envs, min_action=-1.0, max_action=1.0)
+    # Use the same make_env for test environments to ensure observations are flattened.
+    test_envs = gym.vector.SyncVectorEnv(
+        [make_env(args.env_id, args.seed + 100 + i, i, args.capture_video, run_name) for i in range(10)]
+    )
     assert isinstance(envs.single_action_space, gym.spaces.Box), "only continuous action space is supported"
 
     max_action = float(envs.single_action_space.high[0])
-    # Updated: compute dimensions using np.prod on the single_* spaces.
     action_sizes = int(np.prod(envs.single_action_space.shape))
     state_sizes = int(np.prod(envs.single_observation_space.shape))
     policy = FlowPolicy(alpha=args.alpha, 
@@ -371,13 +373,13 @@ poetry run pip install "stable_baselines3==2.0.0a1"
             with torch.no_grad():
                 # speed up training by removing true_v and min_q
                 policy_target.eval()
-                v_old = policy_target.get_v(torch.cat((data.next_observations, data.next_observations), dim=0))
+                v_old = policy_target.get_v(torch.cat((data.next_observations.float(), data.next_observations.float()), dim=0))
                 exact_v_old = torch.min(v_old[:v_old.shape[0]//2], v_old[v_old.shape[0]//2:])
                 target_q = data.rewards.flatten() + (1-data.dones.flatten()) * args.gamma * (exact_v_old).view(-1)
 
             policy.train()  # for dropout
-            current_q1, _ = policy.get_qv(torch.cat((data.observations, data.observations), dim=0), 
-                                          torch.cat((data.actions, data.actions), dim=0))
+            current_q1, _ = policy.get_qv(torch.cat((data.observations.float(), data.observations.float()), dim=0),
+                                          torch.cat((data.actions.float(), data.actions.float()), dim=0))
             target_q = torch.cat((target_q, target_q), dim=0)
             qf_loss = F.mse_loss(current_q1.flatten(), target_q.flatten())
             qf_loss[qf_loss != qf_loss] = 0.0

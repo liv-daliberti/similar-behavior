@@ -14,8 +14,8 @@ pip install --upgrade typing_extensions
 pip install torch==1.12.1+cu116 torchvision==0.13.1+cu116 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu116
 
 # Sweep parameters
-ALPHAS=(0 0.05 0.1 0.15 0.2 0.25)
-SEEDS=(1 2 3 4 5)
+ALPHAS=(0.1 0.15 0.2 0.25)
+SEEDS=(1)
 
 # Always use GPU 0
 export CUDA_VISIBLE_DEVICES=0

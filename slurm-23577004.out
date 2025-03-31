@@ -1,0 +1,2 @@
+slurmstepd: error: execve(): MEOW/dm-control-fish-swim.sh: Exec format error
+srun: error: node202: task 0: Exited with exit code 8

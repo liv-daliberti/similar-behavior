@@ -1,0 +1,2 @@
+srun: error: node202: task 0: Exited with exit code 13
+slurmstepd: error: execve(): MEOW/dm-control-fish-swim.sh: Permission denied

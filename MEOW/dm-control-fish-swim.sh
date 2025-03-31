@@ -1,3 +1,4 @@
+#!/bin/bash
 source ~/.bashrc
 conda activate similar-behavior-dm
 export WANDB_MODE=offline
