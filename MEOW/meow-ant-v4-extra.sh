@@ -12,7 +12,7 @@ export CUDA_VISIBLE_DEVICES=0
 export WANDB_MODE=offline
 
 # Sweep parameters
-SEEDS=(3 4)
+SEEDS=(3)
 ALPHAS=(0.2 0.175 0.15 0.125 0.1 0.075 0.05 0.025 0)
 
 counter=0

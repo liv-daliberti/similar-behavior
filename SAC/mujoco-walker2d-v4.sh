@@ -9,8 +9,8 @@ conda activate similar-behavior
 export WANDB_MODE=offline
 
 # Define the alphas and seeds to sweep
-alphas=(0 0.1 0.2 0.3 0.4 0.5 0.6)
-seeds=(1 2)
+alphas=(0.4 0.5)
+seeds=(3 4)
 
 counter=0
 
@@ -23,7 +23,7 @@ for alpha in "${alphas[@]}"; do
         echo "Launching experiment ${RUN_NAME} on GPU 0"
         
         # Launch the experiment in the background using GPU 0
-        env CUDA_VISIBLE_DEVICES=0 python cleanrl/cleanrl/sac_continuous_action.py \
+        env CUDA_VISIBLE_DEVICES=1 python cleanrl/cleanrl/sac_continuous_action.py \
             --seed ${seed} \
             --total_timesteps 5000000 \
             --learning_starts 5000 \

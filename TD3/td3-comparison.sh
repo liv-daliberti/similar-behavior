@@ -8,8 +8,8 @@ conda activate similar-behavior
 export WANDB_MODE=offline
 
 # Define parameters
-SEEDS=(1 2)
-ENVS=("Hopper-v4" "Ant-v4" "HalfCheetah-v4" "Walker2d-v4")
+SEEDS=(1 2 3 4 5)
+ENVS=("Humanoid-v4")
 
 counter=0
 export CUDA_VISIBLE_DEVICES=0
@@ -23,7 +23,7 @@ for SEED in "${SEEDS[@]}"; do
 
         python cleanrl/cleanrl/td3_continuous_action.py \
             --seed ${SEED} \
-            --total_timesteps 5000000 \
+            --total_timesteps 12000000 \
             --learning_starts 5000 \
             --env_id ${ENV} \
             --exp_name ${ENV} \

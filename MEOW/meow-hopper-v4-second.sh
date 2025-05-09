@@ -12,8 +12,8 @@ export CUDA_VISIBLE_DEVICES=0
 export WANDB_MODE=offline
 
 # Sweep parameters
-SEEDS=(2 3)
-ALPHAS=(0.2 0.3 0.4 0.5 0.6 0 0.1)
+SEEDS=(3)
+ALPHAS=(0 0.1)
 
 counter=0
 
@@ -25,7 +25,7 @@ for SEED in "${SEEDS[@]}"; do
         echo "Launching experiment ${RUN_NAME}"
 
         # Run the experiment in the background.
-        python cleanrl/cleanrl/meow_continuous_action.py \
+        CUDA_VISIBLE_DEVICES=2 python cleanrl/cleanrl/meow_continuous_action.py \
             --seed ${SEED} \
             --total_timesteps 2500000 \
             --learning_starts 5000 \

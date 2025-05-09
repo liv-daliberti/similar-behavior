@@ -1,29 +1,27 @@
 # File: configs/inference.yaml
 
 envs: 
-  - "Hopper-v4"
+#  - "Hopper-v4"
 #  - "Walker2d-v4"
-#  - "HalfCheetah-v4"
+  - "HalfCheetah-v4"
 #  - "Ant-v4"
-# - "dm_control/fish-swim-v0"
-n_eval_episodes: 10
+#  - "Humanoid-v4"
+n_eval_episodes: 25
 root_dir: "wandb"
 seed: 0
 capture_video: false
 run_name: "KL-div-run"
 checkpoint_steps:
-  Hopper-v4: 1000000
-#  Walker2d-v4: 2450000
-#  HalfCheetah-v4: 1000000
-#  Ant-v4: 1000000
-#  dm_control/fish-swim-v0: 2450000
+#  Hopper-v4: 2450000
+#  Walker2d-v4: 4950000
+  HalfCheetah-v4: 4950000
+#  Ant-v4: 4950000
+#  Humanoid-v4: 4950000
 training_seeds: [1, 2, 3, 4, 5]
 algorithms:
-  - "meow_continuous_action.py"
-  - "sac_continuous_action.py"
-  - "td3_continuous_action.py"
+#  - "sac_continuous_action.py"
+#  - "td3_continuous_action.py"
   - "sac_continuous_action-liv-autotune.py"
-  - "sac_continuous_action_2.py"
 results_dir: "results"
 sigma_max: -0.3
 sigma_min: -5.0

@@ -26,6 +26,7 @@ import yaml
 import torch
 import hydra
 import logging
+import csv
 from omegaconf import DictConfig, OmegaConf
 from hydra.utils import to_absolute_path
 import torch.nn as nn
@@ -343,9 +344,8 @@ def evaluate_q_output_diff_episode_meow(env, actor_1, actor_2, device, seed=0):
         obs_tensor = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
         with torch.no_grad():
             a1, _, _ = actor_1.get_action(obs_tensor, deterministic=False)
-            a2, _, _ = actor_2.get_action(obs_tensor, deterministic=False)
             q1, _ = actor_1.flow_policy.get_qv(obs_tensor, a1)
-            q2, _ = actor_2.flow_policy.get_qv(obs_tensor, a2)
+            q2, _ = actor_2.flow_policy.get_qv(obs_tensor, a1)
             current_diff = (q1 - q2).abs().max().item()
             if current_diff > max_q_diff_episode:
                 max_q_diff_episode = current_diff
@@ -376,7 +376,9 @@ def evaluate_agent_episode(env, actor_1, actor_2, device, seed=0):
             std2 = log_std2.exp()
             dist1 = torch.distributions.Normal(mean1, std1)
             dist2 = torch.distributions.Normal(mean2, std2)
-            kl = torch.distributions.kl.kl_divergence(dist1, dist2).mean().item()
+            kl_tensor = torch.distributions.kl.kl_divergence(dist1, dist2).mean()
+            # Clamp negative KL values to zero
+            kl = kl_tensor.clamp(min=0).item()
             kl_sum += kl
 
             a1_np = a1.cpu().numpy().squeeze(0)
@@ -404,7 +406,8 @@ def evaluate_agent_episode_meow(env, actor_1, actor_2, device, seed=0, num_sampl
                 num_samples=num_samples, obs=context, deterministic=False
             )
             log_pi2 = actor_2.flow_policy.log_prob(context, a_samples)
-            step_kl = (log_pi1 - log_pi2).mean().item()
+            kl_tensor = (log_pi1 - log_pi2).mean()
+            step_kl = kl_tensor.clamp(min=0).item()
             kl_sum += step_kl
 
             a1, _, _ = actor_1.get_action(obs_tensor, deterministic=False)
@@ -563,6 +566,42 @@ def create_single_env_for_jac(run, env_id, seed, capture_video, run_name, idx=99
     else:
         return make_env_sac(env_id, seed, idx, capture_video, run_name)
 
+# ----------------------------------------------------------------------
+#                    Main evaluation + incremental CSV
+# ----------------------------------------------------------------------
+
+HEADER = (
+    "env,algorithm,"
+    "actor_i_alpha,actor_i_seed,checkpoint_i,"
+    "actor_j_alpha,actor_j_seed,checkpoint_j,"
+    "episode_idx,episode_reward,episode_kl,episode_q_infnorm,episode_jacobian_diff\n"
+)
+
+
+def _load_existing_keys(csv_path):
+    """Return a set of tuple‑keys for rows that are already present."""
+    keys = set()
+    if not os.path.isfile(csv_path):
+        return keys
+    with open(csv_path, "r", newline="") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            keys.add(
+                (
+                    row["algorithm"],
+                    row["actor_i_alpha"], row["actor_i_seed"], row["checkpoint_i"],
+                    row["actor_j_alpha"], row["actor_j_seed"], row["checkpoint_j"],
+                    row["episode_idx"],
+                )
+            )
+    return keys
+
+
+def _maybe_write_header(csv_path):
+    if not os.path.isfile(csv_path):
+        with open(csv_path, "w", newline="") as fh:
+            fh.write(HEADER)
+
 
 @hydra.main(config_path="configs", config_name="inference")
 def main(cfg: DictConfig):
@@ -571,6 +610,9 @@ def main(cfg: DictConfig):
     logger.info(f"Using device: {device}")
     logger.info("Configuration:\n" + OmegaConf.to_yaml(cfg))
 
+    results_dir = to_absolute_path(cfg.get("results_dir", "results"))
+    os.makedirs(results_dir, exist_ok=True)
+
     for env in cfg.envs:
         logger.info(f"Processing environment: {env}")
         checkpoint_step = cfg.checkpoint_steps.get(env)
@@ -578,54 +620,51 @@ def main(cfg: DictConfig):
             raise ValueError(f"checkpoint_step for {env} not found in the config!")
         logger.info(f"Using checkpoint step {checkpoint_step} for {env}")
 
-        runs = gather_valid_runs(root_dir, env, checkpoint_step, cfg.training_seeds, cfg.algorithms)
+        # discover runs
+        runs = gather_valid_runs(
+            root_dir,
+            env,
+            checkpoint_step,
+            cfg.training_seeds,
+            cfg.algorithms,
+        )
         if not runs:
             logger.info(f"No valid runs found for {env}; skipping.")
             continue
 
+        # Group by (alpha, algorithm)
         grouped = defaultdict(list)
-        for run_info in runs:
-            grouped[(run_info["alpha"], run_info["algorithm"])].append(run_info)
+        for run in runs:
+            grouped[(run["alpha"], run["algorithm"])].append(run)
 
-        results_dir = to_absolute_path(cfg.results_dir) if "results_dir" in cfg else to_absolute_path("results")
-        os.makedirs(results_dir, exist_ok=True)
+        # Prepare CSV bookkeeping
         output_file = os.path.join(results_dir, f"{env}-pairwise_per_episode.csv")
+        _maybe_write_header(output_file)
+        existing_keys = _load_existing_keys(output_file)
 
-        with open(output_file, "w") as f:
-            f.write(
-                "env,"
-                "algorithm,"
-                "actor_i_alpha,actor_i_seed,checkpoint_i,"
-                "actor_j_alpha,actor_j_seed,checkpoint_j,"
-                "episode_idx,"
-                "episode_reward,"
-                "episode_kl,"
-                "episode_q_infnorm,"
-                "episode_jacobian_diff\n"
-            )
-
+        # --------------------------------------------------------------
+        #                 Pairwise comparisons (unchanged)
+        # --------------------------------------------------------------
         for key in sorted(grouped.keys(), key=lambda k: get_algo_priority(k[1])):
             run_group = grouped[key]
             if len(run_group) < 2:
                 continue
 
-            for run_i, run_j in itertools.combinations(run_group, 2):
+            for run_i, run_j in itertools.permutations(run_group, 2):
                 if run_i["seed"] == run_j["seed"]:
                     continue
 
-                # NEW: log pair info
-                logger.info(
-                    f"Comparing two runs in env={env}:\n"
-                    f"  Run i => alpha={run_i['alpha']}, seed={run_i['seed']}, "
-                    f"algorithm={run_i['algorithm']}, checkpoint={run_i['actor_path']}\n"
-                    f"  Run j => alpha={run_j['alpha']}, seed={run_j['seed']}, "
-                    f"algorithm={run_j['algorithm']}, checkpoint={run_j['actor_path']}"
+                # pair description key (incl episode later)
+                base_key = (
+                    run_i["algorithm"],
+                    str(run_i["alpha"]), str(run_i["seed"]), run_i["actor_path"],
+                    str(run_j["alpha"]), str(run_j["seed"]), run_j["actor_path"],
                 )
 
+                # --- load actors & (optionally) Q‑nets (original code, unmodified) ---
                 actor_i = load_actor(run_i, device, cfg)
                 actor_j = load_actor(run_j, device, cfg)
-                actor_i.eval()
-                actor_j.eval()
+                actor_i.eval(); actor_j.eval()
 
                 have_q_networks = False
                 qf1_i = qf2_i = qf1_j = qf2_j = None
@@ -645,7 +684,14 @@ def main(cfg: DictConfig):
                     qf2_j.load_state_dict(checkpoint_j["qf2_state_dict"])
                     env_for_q.close()
 
+                # ------------------------------------------------------
+                #                   Episode loop
+                # ------------------------------------------------------
                 for episode_idx in range(cfg.n_eval_episodes):
+                    row_key = base_key + (str(episode_idx),)
+                    if row_key in existing_keys:
+                        continue  # already logged ➜ skip computation
+
                     eval_env = create_single_env_for_eval(run_i, cfg.seed + episode_idx, episode_idx, cfg.capture_video, cfg.run_name)
 
                     if "meow_continuous_action.py" in run_i["algorithm"]:
@@ -654,8 +700,8 @@ def main(cfg: DictConfig):
                             actor_1=actor_i,
                             actor_2=actor_j,
                             device=device,
-                            seed=cfg.seed+episode_idx,
-                            num_samples=25
+                            seed=cfg.seed + episode_idx,
+                            num_samples=25,
                         )
                     else:
                         ep_reward, ep_kl = evaluate_agent_episode(
@@ -663,53 +709,59 @@ def main(cfg: DictConfig):
                             actor_1=actor_i,
                             actor_2=actor_j,
                             device=device,
-                            seed=cfg.seed+episode_idx
+                            seed=cfg.seed + episode_idx,
                         )
                     eval_env.close()
 
+                    # Q‑diff --------------------------------------------------
                     if "meow_continuous_action.py" in run_i["algorithm"]:
-                        q_env = create_single_env_for_q(run_i, env, cfg.seed+episode_idx, cfg.capture_video, cfg.run_name, idx=993)
+                        q_env = create_single_env_for_q(run_i, env, cfg.seed + episode_idx, cfg.capture_video, cfg.run_name, idx=993)
                         ep_qdiff = evaluate_q_output_diff_episode_meow(
-                            q_env, actor_1=actor_i, actor_2=actor_j, device=device, seed=cfg.seed+episode_idx
+                            q_env,
+                            actor_1=actor_i,
+                            actor_2=actor_j,
+                            device=device,
+                            seed=cfg.seed + episode_idx,
                         )
                         q_env.close()
                     else:
                         if have_q_networks:
-                            q_env = create_single_env_for_q(run_i, env, cfg.seed+episode_idx, cfg.capture_video, cfg.run_name, idx=994)
+                            q_env = create_single_env_for_q(run_i, env, cfg.seed + episode_idx, cfg.capture_video, cfg.run_name, idx=994)
                             ep_qdiff = evaluate_q_output_diff_episode(
-                                q_env, 
-                                actor_1=actor_i, 
+                                q_env,
+                                actor_1=actor_i,
                                 qf1_i=qf1_i,
                                 qf2_i=qf2_i,
                                 qf1_j=qf1_j,
                                 qf2_j=qf2_j,
                                 device=device,
-                                seed=cfg.seed+episode_idx
+                                seed=cfg.seed + episode_idx,
                             )
                             q_env.close()
                         else:
-                            ep_qdiff = float('nan')
+                            ep_qdiff = float("nan")
 
-                    jac_env = create_single_env_for_jac(run_i, env, cfg.seed+episode_idx, cfg.capture_video, cfg.run_name, idx=995)
+                    # Jacobian diff -----------------------------------------
+                    jac_env = create_single_env_for_jac(run_i, env, cfg.seed + episode_idx, cfg.capture_video, cfg.run_name, idx=995)
                     ep_jacdiff = compute_jacobian_diff_episode(
-                        jac_env, actorA=actor_i, actorB=actor_j, device=device, seed=cfg.seed+episode_idx
+                        jac_env,
+                        actorA=actor_i,
+                        actorB=actor_j,
+                        device=device,
+                        seed=cfg.seed + episode_idx,
                     )
                     jac_env.close()
 
-                    with open(output_file, "a") as f:
-                        f.write(
-                            f"{env},"
-                            f"{run_i['algorithm']},"
-                            f"{run_i['alpha']},{run_i['seed']},{run_i['actor_path']},"
+                    # ------------------- write row -------------------------
+                    with open(output_file, "a", newline="") as fh:
+                        fh.write(
+                            f"{env},{run_i['algorithm']},{run_i['alpha']},{run_i['seed']},{run_i['actor_path']},"
                             f"{run_j['alpha']},{run_j['seed']},{run_j['actor_path']},"
-                            f"{episode_idx},"
-                            f"{ep_reward},"
-                            f"{ep_kl},"
-                            f"{ep_qdiff},"
-                            f"{ep_jacdiff}\n"
+                            f"{episode_idx},{ep_reward},{ep_kl},{ep_qdiff},{ep_jacdiff}\n"
                         )
+                    existing_keys.add(row_key)  # ensure dedupe within run
 
-        logger.info(f"Results for {env} saved to {output_file}")
+        logger.info(f"Results for {env} written/updated at {output_file}")
 
 
 if __name__ == "__main__" and os.path.basename(__file__) == "inference.py":

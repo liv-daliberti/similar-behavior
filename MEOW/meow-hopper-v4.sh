@@ -12,12 +12,12 @@ export CUDA_VISIBLE_DEVICES=0
 export WANDB_MODE=offline
 
 # Define the alphas to run in a fixed order.
-ALPHAS_LIST=(0 0.1 0.2 0.3 0.4 0.5 0.6)
+ALPHAS_LIST=(0.3 0.4 0.5 0.6)
 
 # For each alpha, run only seed 1.
 declare -A ALPHA_SEEDS
 for alpha in "${ALPHAS_LIST[@]}"; do
-    ALPHA_SEEDS[$alpha]="1"
+    ALPHA_SEEDS[$alpha]="5"
 done
 
 counter=0

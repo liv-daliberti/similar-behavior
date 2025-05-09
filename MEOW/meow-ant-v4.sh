@@ -12,7 +12,7 @@ export CUDA_VISIBLE_DEVICES=0
 export WANDB_MODE=offline
 
 # Sweep parameters
-SEEDS=(1 2)
+SEEDS=(1)
 ALPHAS=(0.2 0.175 0.15 0.125 0.1 0.075 0.05 0.025 0)
 
 counter=0
@@ -27,7 +27,7 @@ for SEED in "${SEEDS[@]}"; do
         # Run the experiment in the background.
         python cleanrl/cleanrl/meow_continuous_action.py \
             --seed ${SEED} \
-            --total_timesteps 5000000 \
+            --total_timesteps 10000000 \
             --learning_starts 5000 \
             --alpha ${ALPHA} \
             --no-autotune \

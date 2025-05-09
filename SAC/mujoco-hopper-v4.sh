@@ -8,8 +8,8 @@ module load anaconda3/2024.6
 conda activate similar-behavior
 
 # Sweep parameters
-SEEDS=(1 2)
-ALPHAS=(0 0.1 0.2 0.3 0.4 0.5 0.6)
+SEEDS=(5)
+ALPHAS=(0.6)
 export WANDB_MODE=offline
 
 # Set the GPU (only GPU 0 is available)

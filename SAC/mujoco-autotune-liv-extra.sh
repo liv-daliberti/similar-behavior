@@ -11,7 +11,7 @@ export WANDB_MODE=offline
 
 # Define parameters
 SEEDS=(1 2 3 4 5)
-ENVS=("Ant-v4" "Walker2d-v4")
+ENVS=("HalfCheetah-v4")
 ALPHA=1
 
 counter=0

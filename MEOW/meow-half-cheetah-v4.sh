@@ -1,6 +1,6 @@
 #!/bin/bash
-# This script runs SAC experiments on 4 GPUs,
-# launching 2 experiments concurrently on each GPU.
+# This script runs SAC experiments on 1 GPU (GPU 0),
+# launching 2 experiments concurrently on that GPU.
 
 # Load necessary modules and activate the Conda environment
 module purge
@@ -9,25 +9,24 @@ conda activate similar-behavior
 
 export WANDB_MODE=offline
 
-# Sweep parameters
-SEEDS=(1 2 3 4 5)
-ALPHAS=(0.2 0.3 0.4 0.5 0.6 0 0.1)
+# Sweep parameters: Only seed 5 is used and a range of alpha values
+SEEDS=(5 4)
+ALPHAS=(0.5 0 0.1)
 
 counter=0
 
-# Loop over each seed and alpha value
+# Loop over the single seed and each alpha value
 for SEED in "${SEEDS[@]}"; do
     for ALPHA in "${ALPHAS[@]}"; do
-        # Construct run name e.g.: meow_halfcheetah-v4-seed-X-alpha-Y
+        # Construct run name e.g.: meow_halfcheetah-v4-seed-5-alpha-Y
         RUN_NAME="meow_halfcheetah-v4-seed-${SEED}-alpha-${ALPHA}"
         echo "Launching experiment ${RUN_NAME}"
         
-        # Determine GPU id based on counter.
-        # Two experiments per GPU are launched in a round-robin fashion across 4 GPUs.
-        GPU_ID=$(( (counter / 2) % 4 ))
+        # Since we're using 1 GPU, set GPU_ID to 0
+        GPU_ID=1
         echo "Using GPU ${GPU_ID}"
         
-        # Launch the experiment in the background using the assigned GPU.
+        # Launch the experiment in the background using GPU 0
         CUDA_VISIBLE_DEVICES=${GPU_ID} python cleanrl/cleanrl/meow_continuous_action.py \
             --seed ${SEED} \
             --total_timesteps 5000000 \
@@ -57,8 +56,8 @@ for SEED in "${SEEDS[@]}"; do
         
         ((counter++))
         
-        # Wait after launching 8 experiments concurrently (2 per GPU across 4 GPUs)
-        if (( counter % 8 == 0 )); then
+        # After launching 2 experiments concurrently, wait for them to finish
+        if (( counter % 2 == 0 )); then
             wait
         fi
     done

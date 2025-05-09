@@ -9,8 +9,8 @@ conda activate similar-behavior
 export WANDB_MODE=offline
 
 # Define the alpha values and seeds to sweep
-alphas=(0 0.1 0.2 0.3 0.4 0.5 0.6)
-seeds=(3 4)
+alphas=(0.5)
+seeds=(1 2 3 4)
 
 counter=0
 

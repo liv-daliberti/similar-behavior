@@ -10,8 +10,8 @@ conda activate similar-behavior
 export WANDB_MODE=offline
 
 # Define parameters
-SEEDS=(1 2)
-ENVS=("Hopper-v4" "Ant-v4" "HalfCheetah-v4" "Walker2d-v4")
+SEEDS=(2)
+ENVS=("HalfCheetah-v4")
 ALPHA=1
 
 counter=0
@@ -21,7 +21,7 @@ for ENV in "${ENVS[@]}"; do
     # Loop over each seed.
     for SEED in "${SEEDS[@]}"; do
         # Since we have 1 GPU, assign it always.
-        gpu_id=0
+        gpu_id=1
         
         # Construct the run name.
         RUN_NAME="sac-${ENV}-seed-${SEED}-alpha-${ALPHA}"
@@ -30,7 +30,7 @@ for ENV in "${ENVS[@]}"; do
         # Launch the experiment with the assigned GPU.
         CUDA_VISIBLE_DEVICES=${gpu_id} python cleanrl/cleanrl/sac_continuous_action.py \
             --seed ${SEED} \
-            --total_timesteps 5000000 \
+            --total_timesteps 12000000 \
             --learning_starts 5000 \
             --autotune \
             --alpha ${ALPHA} \
