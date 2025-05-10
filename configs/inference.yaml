@@ -21,7 +21,8 @@ training_seeds: [1, 2, 3, 4, 5]
 algorithms:
 #  - "sac_continuous_action.py"
 #  - "td3_continuous_action.py"
-  - "sac_continuous_action-liv-autotune.py"
+#  - "sac_continuous_action-liv-autotune.py"
+   - "meow_continuous_action.py"
 results_dir: "results"
 sigma_max: -0.3
 sigma_min: -5.0

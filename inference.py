@@ -701,7 +701,7 @@ def main(cfg: DictConfig):
                             actor_2=actor_j,
                             device=device,
                             seed=cfg.seed + episode_idx,
-                            num_samples=25,
+                            num_samples=5,
                         )
                     else:
                         ep_reward, ep_kl = evaluate_agent_episode(

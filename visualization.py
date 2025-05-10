@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Multi-panel visualization across environments with shaded 95% CI (mean ± 1.96*SEM),
-TD3 line at alpha = 1.0 and SAC autotune line. Loops automatically over all metrics. Shared legend.
+Multi-panel visualization for each environment: one panel per metric
+(+ Between-Run CI of Within-Run CI Size), showing how per-seed confidence
+interval widths vary with α and how they themselves vary across seeds.
+Y-axes are on a log scale (indicated in each label).
+Figures are generated at high resolution (18″ tall × 18″×n_metrics×1.25″ wide).
+All font sizes have been increased ~3× for readability.
 """
 
 import os
@@ -10,161 +14,166 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Increase all font sizes by roughly 3×
 plt.rcParams.update({
     "font.family": "serif",
-    "axes.titlesize": 24,
-    "axes.labelsize": 22,
-    "xtick.labelsize": 18,
-    "ytick.labelsize": 18,
-    "legend.fontsize": 20,
+    "axes.titlesize": 72,
+    "axes.labelsize": 66,
+    "xtick.labelsize": 54,
+    "ytick.labelsize": 54,
+    "legend.fontsize": 60,
     "lines.linewidth": 3.0,
     "lines.markersize": 8,
 })
 
-# metric_key -> (display name, csv column name)
 METRICS = {
-    "mean_reward":   ("Mean Reward",           "episode_reward"),
-    "mean_KL":       ("Mean KL Divergence",    "episode_kl"),
-    "q_infnorm":     ("Q Difference",          "episode_q_infnorm"),
-    "jacobian_diff": ("Jacobian Difference",   "episode_jacobian_diff"),
+    "mean_reward":   ("Mean Reward",              "episode_reward"),
+    "mean_KL":       ("Mean KL Divergence",       "episode_kl"),
+    "q_infnorm":     ("Q Difference",             "episode_q_infnorm"),
+    "jacobian_diff": ("Jacobian Difference",      "episode_jacobian_diff"),
+    "ci_of_ci":      ("CI of Run CI Sizes (95%)", "episode_reward"),
 }
-
-# column lookup from metric_key
-METRIC_COLUMN_MAPPING = {k: v[1] for k, v in METRICS.items()}
-
+METRIC_COLUMN = {k: v[1] for k, v in METRICS.items()}
+CI_Z = 1.96
+SUPPORTED_ALGS = {"sac", "td3", "meow"}
+ALG_COLORS = {"sac": "orange", "td3": "red", "meow": "blue"}
 
 def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input_dir", type=str, default="results")
-    parser.add_argument("--output_dir", type=str, default="visualizations")
-    parser.add_argument("--file_pattern", type=str, default="pairwise_per_episode.csv")
-    return parser.parse_args()
+    p = argparse.ArgumentParser()
+    p.add_argument("--input_dir",    type=str, default="results")
+    p.add_argument("--output_dir",   type=str, default="visualizations")
+    p.add_argument("--file_pattern", type=str, default="pairwise_per_episode.csv")
+    return p.parse_args()
 
-
-def abbreviate_algorithm(alg_full):
-    base = os.path.basename(alg_full)
-    if "td3_continuous_action" in base:
-        return "td3"
-    if "sac_continuous_action" in base or "autotune" in base:
-        return "sac"
-    return os.path.splitext(base)[0].split('_')[0]
-
+def abbreviate_algorithm(path: str) -> str:
+    b = os.path.basename(path)
+    if "td3_continuous_action" in b: return "td3"
+    if "sac_continuous_action" in b or "autotune" in b: return "sac"
+    if "meow_continuous_action" in b: return "meow"
+    return os.path.splitext(b)[0].split('_')[0]
 
 def load_and_aggregate(df, metric_key):
-    metric = metric_key
+    raw_col = METRIC_COLUMN[metric_key]
+    if metric_key!="ci_of_ci" and raw_col in df.columns:
+        df = df.rename(columns={raw_col: metric_key})
     df["seed"] = df.get("actor_i_seed", np.nan)
     df["algorithm_abbr"] = df["algorithm"].apply(abbreviate_algorithm)
     df["alpha"] = pd.to_numeric(df.get("actor_i_alpha", np.nan), errors="coerce")
-    df.loc[df["algorithm_abbr"] == "td3", "alpha"] = 1.0
+    df.loc[df["algorithm_abbr"]=="td3","alpha"] = 1.0
+    df = df[df["algorithm_abbr"].isin(SUPPORTED_ALGS)]
+    # pick column to dropna on
+    candidates = []
+    if metric_key in df.columns: candidates.append(metric_key)
+    if raw_col in df.columns and metric_key=="ci_of_ci": candidates.append(raw_col)
+    if not candidates: return None
+    drop_col = candidates[0]
+    df = df.dropna(subset=[drop_col,"alpha","seed"])
+    if df.empty: return None
 
-    # include only sac and td3
-    allowed = {"sac", "td3"}
-    df = df[df["algorithm_abbr"].isin(allowed)]
-    df = df.dropna(subset=[metric, "alpha", "seed"])
-    if df.empty:
-        return None
-
-    per_seed = (
-        df.groupby(["env", "algorithm_abbr", "alpha", "seed"])[metric]
-          .mean().reset_index()
-    )
-    summary = (
-        per_seed.groupby(["env", "algorithm_abbr", "alpha"])[metric]
-               .agg(mean="mean", std="std", count="count")
-               .reset_index()
-    )
-    summary["sem"] = summary["std"] / np.sqrt(summary["count"])
-    summary["ci95"] = 1.96 * summary["sem"]
+    if metric_key=="ci_of_ci":
+        per_seed = (
+            df.groupby(["env","algorithm_abbr","alpha","seed"])
+              .episode_reward.agg(std="std",count="count").reset_index()
+        )
+        per_seed["sem_run"] = per_seed["std"]/np.sqrt(per_seed["count"])
+        per_seed["ci_run"]  = CI_Z * per_seed["sem_run"]
+        summary = (
+            per_seed.groupby(["env","algorithm_abbr","alpha"])["ci_run"]
+              .agg(mean="mean",std="std",count="count").reset_index()
+        )
+    else:
+        per_seed = (
+            df.groupby(["env","algorithm_abbr","alpha","seed"])[metric_key]
+              .mean().reset_index(name="metric_mean")
+        )
+        summary = (
+            per_seed.groupby(["env","algorithm_abbr","alpha"])["metric_mean"]
+              .agg(mean="mean",std="std",count="count").reset_index()
+        )
+    summary["sem"] = summary["std"]/np.sqrt(summary["count"])
+    summary["ci"]  = CI_Z*summary["sem"]
     return summary
-
 
 def main():
     args = parse_args()
-    input_dir = args.input_dir
-    output_dir = args.output_dir
-    file_pattern = args.file_pattern
-
-    files = [f for f in os.listdir(input_dir)
-             if file_pattern in f and f.endswith(".csv")]
-    data_list = []
-    env_order = []
+    files = [f for f in os.listdir(args.input_dir)
+             if f.endswith(".csv") and args.file_pattern in f]
+    data = []
     for f in files:
-        df = pd.read_csv(os.path.join(input_dir, f))
-        if "env" not in df.columns or df["env"].isna().all():
-            continue
-        env_name = df["env"].dropna().iloc[0]
-        env_order.append(env_name)
-        data_list.append((env_name, df))
+        df = pd.read_csv(os.path.join(args.input_dir,f))
+        if "env" not in df or df["env"].dropna().empty: continue
+        data.append((df["env"].dropna().iloc[0],df))
+    if not data:
+        print("No valid data found."); return
 
-    if not data_list:
-        print("No valid data loaded.")
-        return
+    nm = len(METRICS)
+    fig_height = 23
+    fig_width  = 18*nm*1.25
 
-    unique_envs = list(dict.fromkeys(env_order))
-    num_envs = len(unique_envs)
-    algorithm_colors = {"sac": "orange", "td3": "red"}
+    for env,df in data:
+        fig,axes = plt.subplots(1,nm,figsize=(fig_width,fig_height),sharey=False)
+        # more top space for title, more bottom for legend
+        fig.subplots_adjust(left=0.05,right=0.98,top=0.87,bottom=0.22,wspace=0.22)
+        fig.suptitle(f"Environment: {env}",fontsize=84,y=0.96)
 
-    for metric_key, (display_name, _) in METRICS.items():
-        ylabel = f"{display_name} (log scale)"
-        summaries = []
-        for env_name, df in data_list:
-            col = METRIC_COLUMN_MAPPING[metric_key]
-            if col in df.columns and col != metric_key:
-                df = df.rename(columns={col: metric_key})
-            sm = load_and_aggregate(df.copy(), metric_key)
-            if sm is not None:
-                summaries.append(sm)
+        handles = {}
+        for i,(mk,(title,_)) in enumerate(METRICS.items()):
+            ax = axes[i]
+            summary = load_and_aggregate(df.copy(),mk)
+            if summary is None or summary.empty:
+                ax.set_title(f"{title}\n(no data)",fontsize=60)
+                continue
+            sub = summary[summary["env"]==env]
 
-        if not summaries:
-            print(f"No data for {metric_key}")
-            continue
-
-        full_df = pd.concat(summaries, ignore_index=True)
-
-        fig, axes = plt.subplots(1, num_envs, figsize=(6 * num_envs, 6), sharey=False)
-        fig.subplots_adjust(left=0.1, right=0.95, top=0.88, bottom=0.25, wspace=0.3)
-        fig.text(0.045, 0.5, ylabel, va='center', rotation='vertical', fontsize=26)
-
-        legend_handles = {}
-        for ax, env in zip(axes, unique_envs):
-            df_env = full_df[full_df["env"] == env]
-            ax.set_title(env, fontsize=24)
-            ax.set_xlabel("Alpha", fontsize=20)
+            ax.set_title(title,fontsize=60)
+            ax.set_xlabel("Alpha",fontsize=54)
+            ax.set_xticks(np.arange(0,0.8,0.1))
+            ax.minorticks_on()
+            ax.set_ylabel(f"{title} (log scale)",fontsize=54)
             ax.set_yscale("log")
-            ax.grid(True)
+            ax.grid(True,which="major")
+            ax.grid(True,which="minor",linestyle=":",linewidth=1.5)
 
-            for alg in df_env["algorithm_abbr"].unique():
-                df_alg = df_env[df_env["algorithm_abbr"] == alg]
-                df_main = df_alg[~np.isclose(df_alg["alpha"], 1.0, atol=1e-6)]
-                df_one = df_alg[np.isclose(df_alg["alpha"], 1.0, atol=1e-6)]
-                color = algorithm_colors.get(alg, "gray")
+            for alg in SUPPORTED_ALGS:
+                part = sub[sub["algorithm_abbr"]==alg]
+                if part.empty: continue
+                color = ALG_COLORS[alg]
+                main = ~np.isclose(part["alpha"],1.0,atol=1e-6)
+                ref  =  np.isclose(part["alpha"],1.0,atol=1e-6)
 
-                if not df_main.empty:
-                    x = df_main["alpha"]
-                    y = df_main["mean"]
-                    ci = df_main["ci95"].fillna(0)
-                    line, = ax.plot(x, y, "-o", color=color, label=alg)
-                    ax.fill_between(x, y - ci, y + ci, color=color, alpha=0.25)
-                    legend_handles[alg] = line
-                if not df_one.empty:
-                    yval = df_one["mean"].iloc[0]
-                    label = "Autotune SAC" if alg == "sac" else "TD3"
-                    line = ax.axhline(y=yval, linestyle="--", color=color, linewidth=2.5, label=label)
-                    legend_handles[label] = line
+                if main.any():
+                    x = part.loc[main,"alpha"]
+                    y = part.loc[main,"ci"] if mk=="ci_of_ci" else part.loc[main,"mean"]
+                    ln, = ax.plot(x,y,"-o",color=color,label=alg.upper())
+                    if mk!="ci_of_ci":
+                        ci = part.loc[main,"ci"].fillna(0)
+                        ax.fill_between(x,y-ci,y+ci,color=color,alpha=0.25)
+                    handles[alg.upper()] = ln
 
+                if ref.any():
+                    y0 = part.loc[ref,"ci"].iloc[0] if mk=="ci_of_ci" else part.loc[ref,"mean"].iloc[0]
+                    label = "SAC α=1 Baseline" if alg=="sac" else "TD3 Baseline" if alg=="td3" else None
+                    if label:
+                        hl = ax.axhline(y0,linestyle="--",color=color,linewidth=5,label=label)
+                        handles[label] = hl
+
+        # legend in the figure coordinate below panels
         fig.legend(
-            [legend_handles[k] for k in sorted(legend_handles)],
-            sorted(legend_handles),
-            loc='lower center', bbox_to_anchor=(0.5, -0.02),
-            ncol=len(legend_handles), frameon=True
+            handles=list(handles.values()),
+            labels=list(handles.keys()),
+            loc="lower center",
+            bbox_to_anchor=(0.5,0.05),
+            bbox_transform=fig.transFigure,
+            ncol=len(handles),
+            frameon=True
         )
 
-        os.makedirs(output_dir, exist_ok=True)
-        fname = f"multi_env_alpha_vs_{metric_key}.png"
-        fig.savefig(os.path.join(output_dir, fname), bbox_inches="tight", dpi=300)
+        # save with padding so legend isn't cut
+        os.makedirs(args.output_dir,exist_ok=True)
+        out = os.path.join(args.output_dir,f"{env}_alpha_vs_all_metrics.png")
+        fig.savefig(out,bbox_inches="tight",pad_inches=0.5,dpi=300)
         plt.close(fig)
-        print(f"Saved: {os.path.join(output_dir, fname)}")
+        print(f"Saved: {out}")
 
-
-if __name__ == "__main__":
+if __name__=="__main__":
     main()
