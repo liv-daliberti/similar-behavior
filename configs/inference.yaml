@@ -3,9 +3,9 @@
 envs: 
 #  - "Hopper-v4"
 #  - "Walker2d-v4"
-  - "HalfCheetah-v4"
+#  - "HalfCheetah-v4"
 #  - "Ant-v4"
-#  - "Humanoid-v4"
+  - "Humanoid-v4"
 n_eval_episodes: 25
 root_dir: "wandb"
 seed: 0
@@ -14,15 +14,15 @@ run_name: "KL-div-run"
 checkpoint_steps:
 #  Hopper-v4: 2450000
 #  Walker2d-v4: 4950000
-  HalfCheetah-v4: 4950000
+#  HalfCheetah-v4: 4950000
 #  Ant-v4: 4950000
-#  Humanoid-v4: 4950000
+  Humanoid-v4: 4950000
 training_seeds: [1, 2, 3, 4, 5]
 algorithms:
-#  - "sac_continuous_action.py"
-#  - "td3_continuous_action.py"
-#  - "sac_continuous_action-liv-autotune.py"
-   - "meow_continuous_action.py"
+  - "sac_continuous_action.py"
+  - "td3_continuous_action.py"
+  - "sac_continuous_action-liv-autotune.py"
+   #- "meow_continuous_action.py"
 results_dir: "results"
 sigma_max: -0.3
 sigma_min: -5.0

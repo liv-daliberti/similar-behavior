@@ -7,7 +7,7 @@ export LD_LIBRARY_PATH="$MUJOCO_PY_MUJOCO_PATH/bin:$LD_LIBRARY_PATH"
 
 
 # run seed 3 on GPU 1
-CUDA_VISIBLE_DEVICES=1 python /scratch/gpfs/od2961/similarity-paper/similar-behavior/cleanrl/cleanrl/adaptive_sac.py \
+CUDA_VISIBLE_DEVICES=0 python /scratch/gpfs/od2961/similarity-paper/similar-behavior/cleanrl/cleanrl/adaptive_sac.py \
   --env_id Humanoid-v4 \
   --total_timesteps 5500000 \
   --seed 3 \
