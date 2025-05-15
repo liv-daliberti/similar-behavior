@@ -1,49 +1,41 @@
 #!/usr/bin/env python3
 """
-This script gathers valid run checkpoints from a specified directory,
-loads actor and Q networks (qf1 and qf2) from checkpoints at a specified step,
-and performs pairwise evaluations between runs that have the same alpha value and algorithm.
-
-For each pair, it now logs **per-episode** results (no averaging). 
-We report:
- - Episode reward
- - KL divergence (naive for MEOW)
- - The L∞ norm (max) between the Q networks for that episode
- - The Frobenius norm difference between the Jacobians for that episode
-
-Additionally, we include columns for the exact checkpoint paths used (checkpoint_i, checkpoint_j).
-No median, IQM, or bootstrap CIs are computed here.
-
-Changes in this version:
- - We do **not** use a Gym vector environment anymore for evaluation. Instead, we create a single
-   normal environment each time, so the action shape is always (action_dim,).
- - For MEOW runs, we wrap the environment with `RescaleAction`.
+Parallel CPU-Only Evaluation Script
+- Uses all available CPUs
+- Avoids GPU usage
+- Parallelizes per-episode run comparisons
+- TD3 is run deterministically; all other policies are stochastic.
+- Always loads both Q-nets out of the same actor checkpoint.
 """
-
 import os
 import glob
 import yaml
 import torch
 import hydra
 import logging
+import gymnasium as gym
 import csv
+import multiprocessing as mp
 from omegaconf import DictConfig, OmegaConf
 from hydra.utils import to_absolute_path
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-import gymnasium as gym
 from collections import defaultdict
 import itertools
+from tqdm import tqdm
 
+# ─── Logging & single-thread PyTorch ───────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+torch.set_num_threads(1)
 
 LOG_STD_MAX = 2
 LOG_STD_MIN = -5
 
-# ----------------------------------------------------------------------
-# FlowPolicy dependencies (try local import if needed)
+# ─── FlowPolicy dependencies ────────────────────────────────────────────
 try:
     from cleanrl.cleanrl.nf.nets import MLP
     from cleanrl.cleanrl.nf.transforms import Preprocessing
@@ -55,6 +47,7 @@ except ImportError:
     from nf.distributions import ConditionalDiagLinearGaussian
     from nf.flows import MaskedCondAffineFlow, CondScaling
 
+# ─── Flow Initialization ────────────────────────────────────────────────
 # ----------------------- Flow Initialization --------------------------
 def init_Flow(sigma_max, sigma_min, action_sizes, state_sizes):
     init_parameter = "zero"
@@ -163,368 +156,319 @@ class FlowPolicy(nn.Module):
         v += v_
         return (v * self.alpha)[:, None]
 
-# ----------------------- Actor Classes ----------------------------------
+
+# ─── Actor & FlowActor ─────────────────────────────────────────────────
 def _get_env_spaces(env):
     if hasattr(env, "single_observation_space"):
-        obs_space = env.single_observation_space
-        act_space = env.single_action_space
-    else:
-        obs_space = env.observation_space
-        act_space = env.action_space
-    return obs_space, act_space
+        return env.single_observation_space, env.single_action_space
+    return env.observation_space, env.action_space
 
 class Actor(nn.Module):
     def __init__(self, env):
         super().__init__()
-        obs_space, act_space = _get_env_spaces(env)
-        obs_dim = int(np.prod(obs_space.shape))
-        action_dim = int(np.prod(act_space.shape))
-
-        self.fc1 = nn.Linear(obs_dim, 256)
-        self.fc2 = nn.Linear(256, 256)
-        self.fc_mean = nn.Linear(256, action_dim)
-        self.fc_logstd = nn.Linear(256, action_dim)
-
-        action_scale = (act_space.high - act_space.low) / 2.0
-        action_bias = (act_space.high + act_space.low) / 2.0
-
-        self.register_buffer("action_scale", torch.tensor(action_scale, dtype=torch.float32))
-        self.register_buffer("action_bias", torch.tensor(action_bias, dtype=torch.float32))
+        obs_s, act_s = _get_env_spaces(env)
+        od = int(np.prod(obs_s.shape))
+        ad = int(np.prod(act_s.shape))
+        self.fc1      = nn.Linear(od, 256)
+        self.fc2      = nn.Linear(256, 256)
+        self.fc_mean  = nn.Linear(256, ad)
+        self.fc_logstd= nn.Linear(256, ad)
+        scale = (act_s.high-act_s.low)/2
+        bias  = (act_s.high+act_s.low)/2
+        self.register_buffer("action_scale", torch.tensor(scale, dtype=torch.float32))
+        self.register_buffer("action_bias",  torch.tensor(bias,  dtype=torch.float32))
 
     def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        mean = self.fc_mean(x)
-        log_std = torch.tanh(self.fc_logstd(x))
-        log_std = LOG_STD_MIN + 0.5 * (LOG_STD_MAX - LOG_STD_MIN) * (log_std + 1)
-        return mean, log_std
+        x = F.relu(self.fc1(x)); x = F.relu(self.fc2(x))
+        m = self.fc_mean(x)
+        ls= torch.tanh(self.fc_logstd(x))
+        ls= LOG_STD_MIN + 0.5*(LOG_STD_MAX-LOG_STD_MIN)*(ls+1)
+        return m, ls
 
     def get_action(self, x, deterministic=False):
-        mean, log_std = self(x)
-        std = log_std.exp()
-        normal = torch.distributions.Normal(mean, std)
-        if deterministic:
-            x_t = mean
-        else:
-            x_t = normal.rsample()
-        y_t = torch.tanh(x_t)
-        action = y_t * self.action_scale + self.action_bias
-        log_prob = (
-            normal.log_prob(x_t)
-            - torch.log(self.action_scale * (1 - y_t.pow(2)) + 1e-6)
-        ).sum(1, keepdim=True)
-        scaled_mean = torch.tanh(mean) * self.action_scale + self.action_bias
-        return action, log_prob, scaled_mean
+        m, ls = self(x); std = ls.exp()
+        dist = torch.distributions.Normal(m, std)
+        xt   = m if deterministic else dist.rsample()
+        yt   = torch.tanh(xt)
+        a    = yt*self.action_scale + self.action_bias
+        logp = (dist.log_prob(xt)
+                - torch.log(self.action_scale*(1-yt.pow(2))+1e-6))\
+               .sum(1, keepdim=True)
+        return a, logp, m
 
 class FlowActor(nn.Module):
     def __init__(self, env, alpha, sigma_max, sigma_min, device):
         super().__init__()
-        obs_space, act_space = _get_env_spaces(env)
-        obs_dim = int(np.prod(obs_space.shape))
-        action_dim = int(np.prod(act_space.shape))
-
-        self.flow_policy = FlowPolicy(alpha, sigma_max, sigma_min, action_dim, obs_dim, device).to(device)
-        self.device = device
-
-    def forward(self, x):
-        x = x.to(self.device)
-        with torch.no_grad():
-            a, _ = self.flow_policy.sample(num_samples=x.shape[0], obs=x, deterministic=True)
-        mean = a
-        log_prob = self.flow_policy.log_prob(x, a)
-        d = mean.shape[1]
-        const = 0.5 * np.log(2 * np.pi)
-        pseudo_log_std = ((-log_prob) - d * const) / d
-        pseudo_log_std = pseudo_log_std.unsqueeze(1).expand_as(mean)
-        return mean, pseudo_log_std
+        obs_s, act_s = _get_env_spaces(env)
+        od = int(np.prod(obs_s.shape)); ad = int(np.prod(act_s.shape))
+        self.flow_policy = FlowPolicy(alpha, sigma_max, sigma_min, ad, od, device).to(device)
+        self.device      = device
 
     def forward_for_grad(self, x):
         x = x.to(self.device)
         a, _ = self.flow_policy.sample(num_samples=x.shape[0], obs=x, deterministic=True)
-        mean = a
-        log_prob = self.flow_policy.log_prob(x, a)
-        d = mean.shape[1]
-        const = 0.5 * np.log(2 * np.pi)
-        pseudo_log_std = ((-log_prob) - d * const) / d
-        return mean, pseudo_log_std.unsqueeze(1).expand_as(mean)
+        lp   = self.flow_policy.log_prob(x, a)
+        d    = a.shape[1]; c = 0.5*np.log(2*np.pi)
+        pseudo = ((-lp) - d*c)/d
+        return a, pseudo.unsqueeze(1).expand_as(a)
+
+    def forward(self, x):
+        with torch.no_grad():
+            return self.forward_for_grad(x)
 
     def get_action(self, x, deterministic=False):
         x = x.to(self.device)
         with torch.no_grad():
-            action, log_q = self.flow_policy.sample(
-                num_samples=x.shape[0], obs=x, deterministic=deterministic
-            )
-            det_mean, _ = self.forward(x)
-        return action, log_q.unsqueeze(-1), det_mean
+            a, log_q = self.flow_policy.sample(num_samples=x.shape[0], obs=x, deterministic=deterministic)
+        return a, log_q.unsqueeze(-1), a
 
-# ----------------------- SoftQNetwork -----------------------------------
+# ─── Critic network ─────────────────────────────────────────────────────
 class SoftQNetwork(nn.Module):
     def __init__(self, env):
         super().__init__()
-        obs_space, act_space = _get_env_spaces(env)
-        obs_dim = int(np.prod(obs_space.shape))
-        action_dim = int(np.prod(act_space.shape))
-
-        self.fc1 = nn.Linear(obs_dim + action_dim, 256)
+        obs_s, act_s = _get_env_spaces(env)
+        od = int(np.prod(obs_s.shape)); ad = int(np.prod(act_s.shape))
+        self.fc1 = nn.Linear(od+ad, 256)
         self.fc2 = nn.Linear(256, 256)
         self.fc3 = nn.Linear(256, 1)
 
     def forward(self, obs, action):
         x = torch.cat([obs, action], dim=1)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc1(x)); x = F.relu(self.fc2(x))
         return self.fc3(x)
 
-# ----------------------- Jacobian Computation ---------------------------
+# ─── Jacobian utilities ─────────────────────────────────────────────────
 def single_sample_jacobian(actor, state):
     state = state.clone().requires_grad_(True)
     actor.eval()
-    if hasattr(actor, "forward_for_grad"):
-        mean, _ = actor.forward_for_grad(state)
-    else:
-        mean, _ = actor(state)
-    act_dim = mean.shape[1]
-    jac_rows = []
-    for a in range(act_dim):
+    mean, _ = (actor.forward_for_grad(state)
+               if hasattr(actor, "forward_for_grad")
+               else actor(state))
+    rows = []
+    for i in range(mean.shape[1]):
         actor.zero_grad()
         if state.grad is not None:
             state.grad.zero_()
-        mean[0, a].backward(retain_graph=True)
-        jac_rows.append(state.grad[0].clone())
-    return torch.stack(jac_rows, dim=0)
+        mean[0,i].backward(retain_graph=True)
+        rows.append(state.grad[0].clone())
+    return torch.stack(rows, dim=0)
 
-def compute_jacobian_diff_episode(env, actorA, actorB, device, seed=0):
+def compute_jacobian_diff_episode(env, actorA, actorB, device, seed=0, deterministic=False):
     obs, _ = env.reset(seed=seed)
-    done = False
-    total_frob = 0.0
-    steps = 0
+    done = False; total=0.0; steps=0
     while not done:
-        obs_tensor = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
-
-        Ja = single_sample_jacobian(actorA, obs_tensor)
-        Jb = single_sample_jacobian(actorB, obs_tensor)
-        total_frob += (Ja - Jb).norm(p='fro').item()
-        steps += 1
-
+        st = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
+        Ja = single_sample_jacobian(actorA, st)
+        Jb = single_sample_jacobian(actorB, st)
+        total += (Ja-Jb).norm(p='fro').item()
+        steps+=1
         with torch.no_grad():
-            a1, _, _ = actorA.get_action(obs_tensor, deterministic=False)
-        a1_np = a1.cpu().numpy().squeeze(0)
+            a1, _, _ = actorA.get_action(st, deterministic=deterministic)
+        obs, _, t1, t2, _ = env.step(a1.detach().cpu().numpy().squeeze(0))
+        done = t1 or t2
+    return total/ max(1, steps)
 
-        next_obs, _, terminated, truncated, _ = env.step(a1_np)
-        obs = next_obs
-        done = terminated or truncated
-    return total_frob / max(1, steps)
-
-# ------------- Q Output Diff, single episode versions -------------------
-def evaluate_q_output_diff_episode(env, actor_1, qf1_i, qf2_i, qf1_j, qf2_j, device, seed=0):
+# ─── Reward + KL per episode ────────────────────────────────────────────
+def evaluate_agent_episode(env, a1, a2, device, seed=0, deterministic=False):
     obs, _ = env.reset(seed=seed)
-    done = False
-    max_q_diff_episode = 0.0
+    done=False; tot_r=0.0; tot_kl=0.0; steps=0
     while not done:
-        obs_tensor = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
+        st = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
         with torch.no_grad():
-            action_1, _, _ = actor_1.get_action(obs_tensor, deterministic=False)
-            q_i = torch.max(qf1_i(obs_tensor, action_1), qf2_i(obs_tensor, action_1))
-            q_j = torch.max(qf1_j(obs_tensor, action_1), qf2_j(obs_tensor, action_1))
-            current_diff = (q_i - q_j).abs().item()
-            if current_diff > max_q_diff_episode:
-                max_q_diff_episode = current_diff
+            act1,_,_ = a1.get_action(st, deterministic=deterministic)
+            m1,ls1   = a1(st); m2,ls2 = a2(st)
+            std1, std2 = ls1.exp(), ls2.exp()
+            d1 = torch.distributions.Normal(m1,std1)
+            d2 = torch.distributions.Normal(m2,std2)
+            kl = torch.distributions.kl.kl_divergence(d1,d2).mean().clamp(min=0).item()
+            tot_kl += kl
+        obs, r, t1, t2, _ = env.step(act1.detach().cpu().numpy().squeeze(0))
+        tot_r += r; steps+=1; done = t1 or t2
+    return tot_r, tot_kl/max(1,steps)
 
-        a1_np = action_1.cpu().numpy().squeeze(0)
-        next_obs, _, terminated, truncated, _ = env.step(a1_np)
-        obs = next_obs
-        done = terminated or truncated
-    return max_q_diff_episode
-
-def evaluate_q_output_diff_episode_meow(env, actor_1, actor_2, device, seed=0):
-    obs, _ = env.reset(seed=seed)
-    done = False
-    max_q_diff_episode = 0.0
+def evaluate_agent_episode_meow(env, a1, a2, device, seed=0, num_samples=10):
+    obs,_ = env.reset(seed=seed)
+    done=False; tot_r=0.0; tot_kl=0.0; steps=0
     while not done:
-        obs_tensor = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
+        st = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
         with torch.no_grad():
-            a1, _, _ = actor_1.get_action(obs_tensor, deterministic=False)
-            q1, _ = actor_1.flow_policy.get_qv(obs_tensor, a1)
-            q2, _ = actor_2.flow_policy.get_qv(obs_tensor, a1)
-            current_diff = (q1 - q2).abs().max().item()
-            if current_diff > max_q_diff_episode:
-                max_q_diff_episode = current_diff
+            ctx = st.repeat(num_samples,1)
+            acts, lp1 = a1.flow_policy.sample(num_samples, ctx, deterministic=False)
+            lp2 = a2.flow_policy.log_prob(ctx, acts)
+            kl = (lp1-lp2).mean().clamp(min=0).item()
+            tot_kl += kl
+            act1,_,_ = a1.get_action(st, deterministic=False)
+        obs, r, t1, t2, _ = env.step(act1.cpu().numpy().squeeze(0))
+        tot_r += r; steps+=1; done=t1 or t2
+    return tot_r, tot_kl/max(1,steps)
 
-        a1_np = a1.cpu().numpy().squeeze(0)
-        next_obs, _, terminated, truncated, _ = env.step(a1_np)
-        obs = next_obs
-        done = terminated or truncated
-    return max_q_diff_episode
-
-# -------------------- KL + Reward, single-episode -----------------------
-def evaluate_agent_episode(env, actor_1, actor_2, device, seed=0):
-    obs, _ = env.reset(seed=seed)
-    done = False
-    total_reward = 0.0
-    kl_sum = 0.0
-    steps = 0
+# ─── Q-difference (mean per step) ───────────────────────────────────────
+def evaluate_q_output_diff_episode(env, actor_1,
+                                   qf1_i, qf2_i, qf1_j, qf2_j,
+                                   device, seed=0, deterministic=False):
+    obs,_ = env.reset(seed=seed)
+    done=False; total=0.0; steps=0
     while not done:
-        steps += 1
-        obs_tensor = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
-
+        st = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
         with torch.no_grad():
-            a1, _, mean1 = actor_1.get_action(obs_tensor, deterministic=False)
-            _, _, mean2 = actor_2.get_action(obs_tensor, deterministic=False)
-            mean_tmp1, log_std1 = actor_1(obs_tensor)
-            mean_tmp2, log_std2 = actor_2(obs_tensor)
-            std1 = log_std1.exp()
-            std2 = log_std2.exp()
-            dist1 = torch.distributions.Normal(mean1, std1)
-            dist2 = torch.distributions.Normal(mean2, std2)
-            kl_tensor = torch.distributions.kl.kl_divergence(dist1, dist2).mean()
-            # Clamp negative KL values to zero
-            kl = kl_tensor.clamp(min=0).item()
-            kl_sum += kl
+            a1,_,_ = actor_1.get_action(st, deterministic=deterministic)
+            qi = torch.max(qf1_i(st,a1), qf2_i(st,a1))
+            qj = torch.max(qf1_j(st,a1), qf2_j(st,a1))
+            total += (qi-qj).abs().item()
+        obs, _, t1, t2, _ = env.step(a1.detach().cpu().numpy().squeeze(0))
+        done = t1 or t2; steps+=1
+    return total/max(1,steps)
 
-            a1_np = a1.cpu().numpy().squeeze(0)
-        next_obs, reward, terminated, truncated, _ = env.step(a1_np)
-        total_reward += reward
-        obs = next_obs
-        done = terminated or truncated
-
-    avg_kl = kl_sum / max(1, steps)
-    return total_reward, avg_kl
-
-def evaluate_agent_episode_meow(env, actor_1, actor_2, device, seed=0, num_samples=10):
-    obs, _ = env.reset(seed=seed)
-    done = False
-    total_reward = 0.0
-    kl_sum = 0.0
-    steps = 0
-    while not done:
-        steps += 1
-        obs_tensor = torch.tensor(obs, dtype=torch.float32, device=device).unsqueeze(0)
-
-        with torch.no_grad():
-            context = obs_tensor.repeat(num_samples, 1)
-            a_samples, log_pi1 = actor_1.flow_policy.sample(
-                num_samples=num_samples, obs=context, deterministic=False
-            )
-            log_pi2 = actor_2.flow_policy.log_prob(context, a_samples)
-            kl_tensor = (log_pi1 - log_pi2).mean()
-            step_kl = kl_tensor.clamp(min=0).item()
-            kl_sum += step_kl
-
-            a1, _, _ = actor_1.get_action(obs_tensor, deterministic=False)
-            a1_np = a1.cpu().numpy().squeeze(0)
-
-        next_obs, reward, terminated, truncated, _ = env.step(a1_np)
-        total_reward += reward
-        obs = next_obs
-        done = terminated or truncated
-
-    avg_kl = kl_sum / max(1, steps)
-    return total_reward, avg_kl
-
-# -------------------- Env Creation Helpers -----------------------------
-def get_algo_priority(algo):
-    if "meow_continuous_action.py" in algo:
-        return 0
-    elif "td3_continuous_action.py" in algo:
-        return 1
-    elif "sac_continuous_action.py" in algo:
-        return 2
-    else:
-        return 3
-
+# ─── Environment factories ─────────────────────────────────────────────
 def make_env_sac(env_id, seed, idx, capture_video, run_name):
-    env_ = gym.make(env_id)
-    env_ = gym.wrappers.RecordEpisodeStatistics(env_)
-    if capture_video and idx == 0:
-        env_ = gym.wrappers.RecordVideo(env_, f"videos/{run_name}", episode_trigger=lambda x: True)
-    env_.action_space.seed(seed)
-    return env_
+    e = gym.make(env_id)
+    e = gym.wrappers.RecordEpisodeStatistics(e)
+    if capture_video and idx==0:
+        e = gym.wrappers.RecordVideo(e, f"videos/{run_name}", episode_trigger=lambda _:True)
+    e.action_space.seed(seed)
+    return e
 
 def make_env_meow(env_id, seed, idx, capture_video, run_name):
-    env_ = gym.make(env_id)
-    env_ = gym.wrappers.RecordEpisodeStatistics(env_)
-    if capture_video and idx == 0:
-        env_ = gym.wrappers.RecordVideo(env_, f"videos/{run_name}", episode_trigger=lambda x: True)
-    env_.action_space.seed(seed)
-    env_ = gym.wrappers.RescaleAction(env_, -1.0, 1.0)
-    return env_
+    e = gym.make(env_id)
+    e = gym.wrappers.RecordEpisodeStatistics(e)
+    if capture_video and idx==0:
+        e = gym.wrappers.RecordVideo(e, f"videos/{run_name}", episode_trigger=lambda _:True)
+    e.action_space.seed(seed)
+    return gym.wrappers.RescaleAction(e, -1.0, 1.0)
 
+def create_single_env_for_eval(run, seed, idx, capture_video, run_name):
+    return (make_env_meow if "meow_continuous_action.py" in run["algorithm"]
+            else make_env_sac)(run["env"], seed, idx, capture_video, run_name)
+
+def create_single_env_for_q(run, env_id, seed, capture_video, run_name, idx=999):
+    return (make_env_meow if "meow_continuous_action.py" in run["algorithm"]
+            else make_env_sac)(env_id, seed, idx, capture_video, run_name)
+
+def create_single_env_for_jac(run, env_id, seed, capture_video, run_name, idx=998):
+    if "meow_continuous_action.py" in run["algorithm"]:
+        return make_env_meow(env_id, seed, idx, capture_video, run_name)
+    else:
+        return make_env_sac(env_id, seed, idx, capture_video, run_name)
+    
+    
+
+# ─── Run discovery & actor loading (unchanged) ─────────────────────────
 def gather_valid_runs(root_dir, target_env, checkpoint_step, training_seeds, algorithms):
+    """
+    Find runs in root_dir whose config.yaml matches target_env/seed/algorithms
+    and which have exactly one checkpoint file for step=checkpoint_step
+    containing actor + qf1 + qf2 state_dicts.
+    """
     valid_runs = []
-    for subdir, dirs, files in os.walk(root_dir):
-        if "config.yaml" in files:
-            full_config_path = os.path.join(subdir, "config.yaml")
-            with open(full_config_path, "r") as f:
-                config_data = yaml.safe_load(f)
 
-            env_val = config_data.get("env_id", {}) or config_data.get("env_id")
-            if isinstance(env_val, dict):
-                env_val = env_val.get("value")
-            seed_val = config_data.get("seed", {}) or config_data.get("seed")
-            if isinstance(seed_val, dict):
-                seed_val = seed_val.get("value")
-            alpha_val = config_data.get("alpha", {}) or config_data.get("alpha")
-            if isinstance(alpha_val, dict):
-                alpha_val = alpha_val.get("value")
-            algorithm_val = None
-            if "_wandb" in config_data and isinstance(config_data["_wandb"], dict):
-                algorithm_val = config_data["_wandb"].get("value", {}).get("code_path")
+    for run_name in os.listdir(root_dir):
+        run_root = os.path.join(root_dir, run_name)
+        if not os.path.isdir(run_root):
+            continue
 
-            if env_val == target_env and seed_val in training_seeds:
-                if algorithm_val is None or not any(alg in algorithm_val for alg in algorithms):
-                    continue
+        # 1) locate config.yaml
+        config_path = None
+        for cand in (run_root,
+                     os.path.join(run_root, "files"),
+                     os.path.join(run_root, "files", "files")):
+            p = os.path.join(cand, "config.yaml")
+            if os.path.isfile(p):
+                config_path = p
+                break
+        if config_path is None:
+            continue
 
-                run_dir = os.path.dirname(subdir)
-                checkpoint_dir = os.path.join(run_dir, "files")
-                env_for_filename = target_env.split("/")[-1]
+        # 2) load config
+        with open(config_path, "r") as f:
+            cfg = yaml.safe_load(f)
 
-                if alpha_val is not None:
-                    pattern = os.path.join(
-                        checkpoint_dir, '**',
-                        f"{env_for_filename}__*__{seed_val}__{alpha_val}__*_step{checkpoint_step}.pth"
-                    )
-                    matching_files = glob.glob(pattern, recursive=True)
-                    if not matching_files:
-                        pattern = os.path.join(
-                            checkpoint_dir, '**',
-                            f"{env_for_filename}__*__{seed_val}__*_step{checkpoint_step}.pth"
-                        )
-                        matching_files = glob.glob(pattern, recursive=True)
-                else:
-                    pattern = os.path.join(
-                        checkpoint_dir, '**',
-                        f"{env_for_filename}__*__{seed_val}__*_step{checkpoint_step}.pth"
-                    )
-                    matching_files = glob.glob(pattern, recursive=True)
+        # 3) extract env, seed, alpha
+        env_val = cfg.get("env_id", cfg.get("env_id", None))
+        if isinstance(env_val, dict):
+            env_val = env_val.get("value")
+        seed_val = cfg.get("seed", cfg.get("seed", None))
+        if isinstance(seed_val, dict):
+            seed_val = seed_val.get("value")
+        alpha_val = cfg.get("alpha", cfg.get("alpha", None))
+        if isinstance(alpha_val, dict):
+            alpha_val = alpha_val.get("value")
 
-                if matching_files:
-                    valid_runs.append({
-                        "env": env_val,
-                        "alpha": alpha_val,
-                        "seed": seed_val,
-                        "path": run_dir,
-                        "actor_path": matching_files[0],
-                        "algorithm": algorithm_val,
-                    })
-    print(valid_runs)
+        # 4) filter by env & seed
+        if env_val != target_env or seed_val not in training_seeds:
+            continue
+
+        # 5) filter by algorithm
+        wb = cfg.get("_wandb", {}).get("value", {}) or {}
+        algo_val = wb.get("code_path") or cfg.get("algorithm") or cfg.get("algo")
+        if not algo_val or not any(sub in algo_val for sub in algorithms):
+            continue
+
+        # 6) find the single checkpoint file
+        files_dir = os.path.dirname(config_path)
+        cand = os.path.join(files_dir, "files")
+        if os.path.isdir(cand):
+            files_dir = cand
+
+        patterns = [
+            os.path.join(files_dir, f"*_{checkpoint_step}.pth"),
+            os.path.join(files_dir, f"*step{checkpoint_step}.pth"),
+        ]
+        matches = []
+        for pat in patterns:
+            matches.extend(glob.glob(pat))
+        matches = list(set(matches))
+        if len(matches) != 1:
+            logger.warning(
+                f"Run {run_root} has {len(matches)} matches for step {checkpoint_step}, skipping."
+            )
+            continue
+
+        ckpt_file = matches[0]
+        valid_runs.append({
+            "env":         env_val,
+            "alpha":       alpha_val,
+            "seed":        seed_val,
+            "path":        run_root,
+            # point all three at the same checkpoint
+            "actor_path":  ckpt_file,
+            "qf1_path":    ckpt_file,
+            "qf2_path":    ckpt_file,
+            "algorithm":   algo_val,
+        })
+
+    logger.info(f"Found {len(valid_runs)} valid runs for {target_env} @ step {checkpoint_step}")
     return valid_runs
 
+
 def load_actor(run, device, cfg):
-    checkpoint = torch.load(run["actor_path"], map_location=device)
-    if "actor_state_dict" in checkpoint:
-        state = checkpoint["actor_state_dict"]
-    elif "policy_state_dict" in checkpoint:
-        state = checkpoint["policy_state_dict"]
-    else:
-        raise KeyError(f"No recognized actor keys in checkpoint: {run['actor_path']}")
+    """
+    Load just the actor from run["actor_path"].
+    Assumes that checkpoint contains an "actor_state_dict" or equivalent.
+    """
+    ckpt = torch.load(run["actor_path"], map_location=device)
 
-    if "meow_continuous_action.py" in run["algorithm"]:
-        env_for_actor = make_env_meow(run["env"], cfg.seed, 9999, cfg.capture_video, cfg.run_name)
+    # extract actor weights
+    if "actor_state_dict" in ckpt:
+        state = ckpt["actor_state_dict"]
+    elif "policy_state_dict" in ckpt:
+        state = ckpt["policy_state_dict"]
+    elif "state_dict" in ckpt:
+        state = ckpt["state_dict"]
+    elif "model_state_dict" in ckpt:
+        state = ckpt["model_state_dict"]
     else:
-        env_for_actor = make_env_sac(run["env"], cfg.seed, 9999, cfg.capture_video, cfg.run_name)
+        # fallback: assume all top‐level tensors belong to actor
+        state = {k: v for k, v in ckpt.items() if isinstance(v, torch.Tensor)}
 
+    # build a dummy env to get shapes
     if "meow_continuous_action.py" in run["algorithm"]:
-        state = {"flow_policy." + k: v for k, v in state.items()}
+        env_for_actor = make_env_meow(run["env"], cfg.seed, 0, cfg.capture_video, cfg.run_name)
+    else:
+        env_for_actor = make_env_sac(run["env"], cfg.seed, 0, cfg.capture_video, cfg.run_name)
+
+    # instantiate the correct class
+    if "meow_continuous_action.py" in run["algorithm"]:
+        state = {f"flow_policy.{k}": v for k, v in state.items()}
         actor = FlowActor(
             env_for_actor,
             alpha=run["alpha"],
@@ -534,41 +478,32 @@ def load_actor(run, device, cfg):
         )
     else:
         actor = Actor(env_for_actor)
+        # if it was a TD3 checkpoint you may need to rename fc_mu → fc_mean
         if run["algorithm"].endswith("td3_continuous_action.py"):
             if "fc_mu.weight" in state:
                 state["fc_mean.weight"] = state.pop("fc_mu.weight")
-                state["fc_mean.bias"] = state.pop("fc_mu.bias")
-            fc_logstd_w_shape = actor.fc_logstd.weight.shape
-            fc_logstd_b_shape = actor.fc_logstd.bias.shape
-            state["fc_logstd.weight"] = torch.zeros(fc_logstd_w_shape)
-            state["fc_logstd.bias"] = torch.zeros(fc_logstd_b_shape)
+                state["fc_mean.bias"]   = state.pop("fc_mu.bias")
+        # ensure logstd fields exist
+        state.setdefault("fc_logstd.weight", torch.zeros_like(actor.fc_logstd.weight))
+        state.setdefault("fc_logstd.bias",   torch.zeros_like(actor.fc_logstd.bias))
 
-    actor.load_state_dict(state)
+    actor.load_state_dict(state, strict=False)
     actor.to(device)
     env_for_actor.close()
     return actor
 
-def create_single_env_for_eval(run, seed, idx, capture_video, run_name):
-    if "meow_continuous_action.py" in run["algorithm"]:
-        return make_env_meow(run["env"], seed, idx, capture_video, run_name)
-    else:
-        return make_env_sac(run["env"], seed, idx, capture_video, run_name)
 
-def create_single_env_for_q(run, env_id, seed, capture_video, run_name, idx=999):
-    if "meow_continuous_action.py" in run["algorithm"]:
-        return make_env_meow(env_id, seed, idx, capture_video, run_name)
-    else:
-        return make_env_sac(env_id, seed, idx, capture_video, run_name)
-
-def create_single_env_for_jac(run, env_id, seed, capture_video, run_name, idx=998):
-    if "meow_continuous_action.py" in run["algorithm"]:
-        return make_env_meow(env_id, seed, idx, capture_video, run_name)
-    else:
-        return make_env_sac(env_id, seed, idx, capture_video, run_name)
-
-# ----------------------------------------------------------------------
-#                    Main evaluation + incremental CSV
-# ----------------------------------------------------------------------
+def get_algo_priority(algo):
+    """
+    Sort order: meow -> td3 -> sac -> others
+    """
+    if "meow_continuous_action.py" in algo:
+        return 0
+    if "td3_continuous_action.py" in algo:
+        return 1
+    if "sac_continuous_action.py" in algo:
+        return 2
+    return 3
 
 HEADER = (
     "env,algorithm,"
@@ -577,192 +512,150 @@ HEADER = (
     "episode_idx,episode_reward,episode_kl,episode_q_infnorm,episode_jacobian_diff\n"
 )
 
+def _maybe_write_header(path):
+    if not os.path.isfile(path):
+        with open(path,"w") as f: f.write(HEADER)
 
-def _load_existing_keys(csv_path):
-    """Return a set of tuple‑keys for rows that are already present."""
-    keys = set()
-    if not os.path.isfile(csv_path):
-        return keys
-    with open(csv_path, "r", newline="") as fh:
-        reader = csv.DictReader(fh)
-        for row in reader:
-            keys.add(
-                (
-                    row["algorithm"],
-                    row["actor_i_alpha"], row["actor_i_seed"], row["checkpoint_i"],
-                    row["actor_j_alpha"], row["actor_j_seed"], row["checkpoint_j"],
-                    row["episode_idx"],
-                )
-            )
+def _load_existing_keys(path):
+    keys=set()
+    if os.path.isfile(path):
+        with open(path,"r") as f:
+            for r in csv.DictReader(f):
+                keys.add((
+                    r["algorithm"],
+                    r["actor_i_alpha"], r["actor_i_seed"], r["checkpoint_i"],
+                    r["actor_j_alpha"], r["actor_j_seed"], r["checkpoint_j"],
+                    r["episode_idx"],
+                ))
     return keys
 
+def evaluate_pair_episode(args):
+    run_i, run_j, env_id, cfg_dict, episode_idx, base_key, output_file = args
+    cfg = OmegaConf.create(cfg_dict)
+    device = torch.device("cpu")
 
-def _maybe_write_header(csv_path):
-    if not os.path.isfile(csv_path):
-        with open(csv_path, "w", newline="") as fh:
-            fh.write(HEADER)
+    # 1. Load actors
+    actor_i = load_actor(run_i, device, cfg)
+    actor_j = load_actor(run_j, device, cfg)
+    actor_i.eval()
+    actor_j.eval()
 
+    # 2. Reward & KL
+    eval_env = create_single_env_for_eval(
+        run_i, cfg.seed + episode_idx, episode_idx, cfg.capture_video, cfg.run_name
+    )
+    if "meow_continuous_action.py" in run_i["algorithm"]:
+        ep_reward, ep_kl = evaluate_agent_episode_meow(
+            eval_env, actor_i, actor_j, device, cfg.seed + episode_idx
+        )
+    else:
+        ep_reward, ep_kl = evaluate_agent_episode(
+            eval_env, actor_i, actor_j, device, cfg.seed + episode_idx
+        )
+    eval_env.close()
 
-@hydra.main(config_path="configs", config_name="inference")
+    # 3. Q-difference
+    if run_i["qf1_path"] and run_i["qf2_path"]:
+        # Load separate Q-networks from checkpoint
+        qf1_i = SoftQNetwork(eval_env).to(device)
+        qf2_i = SoftQNetwork(eval_env).to(device)
+        qf1_j = SoftQNetwork(eval_env).to(device)
+        qf2_j = SoftQNetwork(eval_env).to(device)
+
+        ckpt = torch.load(run_i["qf1_path"], map_location=device)
+        qf1_i.load_state_dict(ckpt.get("qf1_state_dict", ckpt), strict=False)
+        ckpt = torch.load(run_i["qf2_path"], map_location=device)
+        qf2_i.load_state_dict(ckpt.get("qf2_state_dict", ckpt), strict=False)
+        ckpt = torch.load(run_j["qf1_path"], map_location=device)
+        qf1_j.load_state_dict(ckpt.get("qf1_state_dict", ckpt), strict=False)
+        ckpt = torch.load(run_j["qf2_path"], map_location=device)
+        qf2_j.load_state_dict(ckpt.get("qf2_state_dict", ckpt), strict=False)
+
+        q_env = create_single_env_for_q(
+            run_i, env_id, cfg.seed + episode_idx, cfg.capture_video, cfg.run_name
+        )
+        ep_qdiff = evaluate_q_output_diff_episode(
+            q_env, actor_i, qf1_i, qf2_i, qf1_j, qf2_j,
+            device, cfg.seed + episode_idx
+        )
+        q_env.close()
+    else:
+        # Use MEOW-style Q evaluation via flow_policy.get_qv
+        q_env = create_single_env_for_q(
+            run_i, env_id, cfg.seed + episode_idx, cfg.capture_video, cfg.run_name
+        )
+        ep_qdiff = evaluate_q_output_diff_episode_meow(
+            q_env, actor_i, actor_j, device, cfg.seed + episode_idx
+        )
+        q_env.close()
+
+    # 4. Jacobian diff
+    jac_env = create_single_env_for_jac(
+        run_i, env_id, cfg.seed + episode_idx, cfg.capture_video, cfg.run_name
+    )
+    ep_jacdiff = compute_jacobian_diff_episode(
+        jac_env, actor_i, actor_j, device, cfg.seed + episode_idx
+    )
+    jac_env.close()
+
+    # 5. Write result
+    with open(output_file, "a", newline="") as fh:
+        writer = csv.writer(fh)
+        writer.writerow([
+            env_id,
+            run_i["algorithm"],
+            run_i["alpha"],
+            run_i["seed"],
+            run_i["actor_path"],
+            run_j["alpha"],
+            run_j["seed"],
+            run_j["actor_path"],
+            episode_idx,
+            ep_reward,
+            ep_kl,
+            ep_qdiff,
+            ep_jacdiff
+        ])
+
+    return base_key + (str(episode_idx),)
+
+@hydra.main(config_path="configs", config_name="inference", version_base="1.1")
 def main(cfg: DictConfig):
-    root_dir = to_absolute_path(cfg.root_dir)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    root = to_absolute_path(cfg.root_dir)
+    out_dir = to_absolute_path(cfg.get("results_dir","results"))
+    os.makedirs(out_dir, exist_ok=True)
+    device = torch.device("cpu")
     logger.info(f"Using device: {device}")
-    logger.info("Configuration:\n" + OmegaConf.to_yaml(cfg))
-
-    results_dir = to_absolute_path(cfg.get("results_dir", "results"))
-    os.makedirs(results_dir, exist_ok=True)
+    logger.info("Config:\n" + OmegaConf.to_yaml(cfg))
 
     for env in cfg.envs:
-        logger.info(f"Processing environment: {env}")
-        checkpoint_step = cfg.checkpoint_steps.get(env)
-        if checkpoint_step is None:
-            raise ValueError(f"checkpoint_step for {env} not found in the config!")
-        logger.info(f"Using checkpoint step {checkpoint_step} for {env}")
+        step = cfg.checkpoint_steps[env]
+        runs = gather_valid_runs(root, env, step, cfg.training_seeds, cfg.algorithms)
+        grp  = defaultdict(list)
+        for r in runs:
+            grp[(r["alpha"],r["algorithm"])].append(r)
 
-        # discover runs
-        runs = gather_valid_runs(
-            root_dir,
-            env,
-            checkpoint_step,
-            cfg.training_seeds,
-            cfg.algorithms,
-        )
-        if not runs:
-            logger.info(f"No valid runs found for {env}; skipping.")
-            continue
+        out_f = os.path.join(out_dir, f"{env}-pairwise_per_episode.csv")
+        _maybe_write_header(out_f)
+        seen = _load_existing_keys(out_f)
 
-        # Group by (alpha, algorithm)
-        grouped = defaultdict(list)
-        for run in runs:
-            grouped[(run["alpha"], run["algorithm"])].append(run)
+        jobs = []
+        for (α,algo),g in sorted(grp.items(), key=lambda x:get_algo_priority(x[0][1])):
+            if len(g)<2: continue
+            for i,j in itertools.permutations(g,2):
+                if i["seed"]==j["seed"]: continue
+                key = (i["algorithm"],str(i["alpha"]),str(i["seed"]),i["actor_path"],
+                       str(j["alpha"]),str(j["seed"]),j["actor_path"])
+                for epi in range(cfg.n_eval_episodes):
+                    rk = key+(str(epi),)
+                    if rk in seen: continue
+                    jobs.append((i,j,env,OmegaConf.to_container(cfg,resolve=True),
+                                 epi, key, out_f))
 
-        # Prepare CSV bookkeeping
-        output_file = os.path.join(results_dir, f"{env}-pairwise_per_episode.csv")
-        _maybe_write_header(output_file)
-        existing_keys = _load_existing_keys(output_file)
+        logger.info(f"Launching {len(jobs)} jobs for {env}")
+        with mp.Pool(mp.cpu_count()) as pool:
+            for res in tqdm(pool.imap_unordered(evaluate_pair_episode,jobs), total=len(jobs)):
+                if res: seen.add(res)
 
-        # --------------------------------------------------------------
-        #                 Pairwise comparisons (unchanged)
-        # --------------------------------------------------------------
-        for key in sorted(grouped.keys(), key=lambda k: get_algo_priority(k[1])):
-            run_group = grouped[key]
-            if len(run_group) < 2:
-                continue
-
-            for run_i, run_j in itertools.permutations(run_group, 2):
-                if run_i["seed"] == run_j["seed"]:
-                    continue
-
-                # pair description key (incl episode later)
-                base_key = (
-                    run_i["algorithm"],
-                    str(run_i["alpha"]), str(run_i["seed"]), run_i["actor_path"],
-                    str(run_j["alpha"]), str(run_j["seed"]), run_j["actor_path"],
-                )
-
-                # --- load actors & (optionally) Q‑nets (original code, unmodified) ---
-                actor_i = load_actor(run_i, device, cfg)
-                actor_j = load_actor(run_j, device, cfg)
-                actor_i.eval(); actor_j.eval()
-
-                have_q_networks = False
-                qf1_i = qf2_i = qf1_j = qf2_j = None
-                checkpoint_i = torch.load(run_i["actor_path"], map_location=device)
-                checkpoint_j = torch.load(run_j["actor_path"], map_location=device)
-                if all(k in checkpoint_i for k in ["qf1_state_dict", "qf2_state_dict"]) and \
-                   all(k in checkpoint_j for k in ["qf1_state_dict", "qf2_state_dict"]):
-                    have_q_networks = True
-                    env_for_q = create_single_env_for_q(run_i, env, cfg.seed, cfg.capture_video, cfg.run_name, idx=999)
-                    qf1_i = SoftQNetwork(env_for_q).to(device)
-                    qf2_i = SoftQNetwork(env_for_q).to(device)
-                    qf1_i.load_state_dict(checkpoint_i["qf1_state_dict"])
-                    qf2_i.load_state_dict(checkpoint_i["qf2_state_dict"])
-                    qf1_j = SoftQNetwork(env_for_q).to(device)
-                    qf2_j = SoftQNetwork(env_for_q).to(device)
-                    qf1_j.load_state_dict(checkpoint_j["qf1_state_dict"])
-                    qf2_j.load_state_dict(checkpoint_j["qf2_state_dict"])
-                    env_for_q.close()
-
-                # ------------------------------------------------------
-                #                   Episode loop
-                # ------------------------------------------------------
-                for episode_idx in range(cfg.n_eval_episodes):
-                    row_key = base_key + (str(episode_idx),)
-                    if row_key in existing_keys:
-                        continue  # already logged ➜ skip computation
-
-                    eval_env = create_single_env_for_eval(run_i, cfg.seed + episode_idx, episode_idx, cfg.capture_video, cfg.run_name)
-
-                    if "meow_continuous_action.py" in run_i["algorithm"]:
-                        ep_reward, ep_kl = evaluate_agent_episode_meow(
-                            env=eval_env,
-                            actor_1=actor_i,
-                            actor_2=actor_j,
-                            device=device,
-                            seed=cfg.seed + episode_idx,
-                            num_samples=5,
-                        )
-                    else:
-                        ep_reward, ep_kl = evaluate_agent_episode(
-                            env=eval_env,
-                            actor_1=actor_i,
-                            actor_2=actor_j,
-                            device=device,
-                            seed=cfg.seed + episode_idx,
-                        )
-                    eval_env.close()
-
-                    # Q‑diff --------------------------------------------------
-                    if "meow_continuous_action.py" in run_i["algorithm"]:
-                        q_env = create_single_env_for_q(run_i, env, cfg.seed + episode_idx, cfg.capture_video, cfg.run_name, idx=993)
-                        ep_qdiff = evaluate_q_output_diff_episode_meow(
-                            q_env,
-                            actor_1=actor_i,
-                            actor_2=actor_j,
-                            device=device,
-                            seed=cfg.seed + episode_idx,
-                        )
-                        q_env.close()
-                    else:
-                        if have_q_networks:
-                            q_env = create_single_env_for_q(run_i, env, cfg.seed + episode_idx, cfg.capture_video, cfg.run_name, idx=994)
-                            ep_qdiff = evaluate_q_output_diff_episode(
-                                q_env,
-                                actor_1=actor_i,
-                                qf1_i=qf1_i,
-                                qf2_i=qf2_i,
-                                qf1_j=qf1_j,
-                                qf2_j=qf2_j,
-                                device=device,
-                                seed=cfg.seed + episode_idx,
-                            )
-                            q_env.close()
-                        else:
-                            ep_qdiff = float("nan")
-
-                    # Jacobian diff -----------------------------------------
-                    jac_env = create_single_env_for_jac(run_i, env, cfg.seed + episode_idx, cfg.capture_video, cfg.run_name, idx=995)
-                    ep_jacdiff = compute_jacobian_diff_episode(
-                        jac_env,
-                        actorA=actor_i,
-                        actorB=actor_j,
-                        device=device,
-                        seed=cfg.seed + episode_idx,
-                    )
-                    jac_env.close()
-
-                    # ------------------- write row -------------------------
-                    with open(output_file, "a", newline="") as fh:
-                        fh.write(
-                            f"{env},{run_i['algorithm']},{run_i['alpha']},{run_i['seed']},{run_i['actor_path']},"
-                            f"{run_j['alpha']},{run_j['seed']},{run_j['actor_path']},"
-                            f"{episode_idx},{ep_reward},{ep_kl},{ep_qdiff},{ep_jacdiff}\n"
-                        )
-                    existing_keys.add(row_key)  # ensure dedupe within run
-
-        logger.info(f"Results for {env} written/updated at {output_file}")
-
-
-if __name__ == "__main__" and os.path.basename(__file__) == "inference.py":
+if __name__=="__main__":
     main()

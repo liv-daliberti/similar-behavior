@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
-Multi-panel visualization for each environment: one panel per metric
-(+ Between-Run CI of Within-Run CI Size), showing how per-seed confidence
-interval widths vary with α and how they themselves vary across seeds.
-Y-axes are on a log scale (indicated in each label).
-Figures are generated at high resolution (18″ tall × 18″×n_metrics×1.25″ wide).
-All font sizes have been increased ~3× for readability.
+Multi-panel visualization over every env and for two groups:
+  1) MEOW vs TD3
+  2) SAC vs TD3 vs Adaptive
+
+One panel per metric (Reward, KL, Q-infnorm, Jacobian, %Uncert).
+Input files are named like HalfCheetah-v4-pairwise_per_episode.csv, 
+HalfCheetah-v4-1-pairwise_per_episode.csv, etc.
 """
 
 import os
@@ -13,191 +14,214 @@ import argparse
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import re
+from collections import defaultdict
 
-# Increase all font sizes by roughly 3×
 plt.rcParams.update({
-    "font.family": "serif",
-    "axes.titlesize": 72,
-    "axes.labelsize": 66,
-    "xtick.labelsize": 54,
-    "ytick.labelsize": 54,
-    "legend.fontsize": 60,
-    "lines.linewidth": 3.0,
+    "font.family":      "serif",
+    "axes.titlesize":   24,
+    "axes.labelsize":   22,
+    "xtick.labelsize":  16,
+    "ytick.labelsize":  16,
+    "legend.fontsize":  18,
+    "lines.linewidth":  3,
     "lines.markersize": 8,
 })
 
-METRICS = {
-    "mean_reward":   ("Mean Reward",              "episode_reward"),
-    "mean_KL":       ("Mean KL Divergence",       "episode_kl"),
-    "q_infnorm":     ("Q Mean Difference",        "episode_q_meandiff"),
-    "jacobian_diff": ("Jacobian Difference",      "episode_jacobian_diff"),
-    "ci_of_ci":      ("CI of Run CI Sizes (95%)", "episode_reward"),
+COLOR_MAP = {
+    "td3": "#1f77b4",        # blue
+    "sac": "#2ca02c",        # green
+    "adaptive": "#ff7f0e",   # orange
+    "meow": "#d62728",       # red
 }
-METRIC_COLUMN = {k: v[1] for k, v in METRICS.items()}
-CI_Z = 1.96
-SUPPORTED_ALGS = {"sac", "td3", "meow"}
-ALG_COLORS = {"sac": "orange", "td3": "red", "meow": "blue"}
 
-OVERRIDE_METRIC_FILES = {
-    "q_infnorm": "/scratch/gpfs/od2961/similarity-paper/similar-behavior/results/Humanoid-v4-pairwise_q_mean_diff.csv"
+LABEL_MAP = {
+    "td3": "TD3 Baseline",
+    "sac": "Fixed Entropy SAC",
+    "adaptive": "Adaptive α (Ours)",
+    "meow": "MEOW"
 }
-OVERRIDE_ENV = "Humanoid-v4"
+
+METRICS = {
+    "mean_reward":    ("Mean Reward",          "episode_reward"),
+    "mean_KL":        ("Mean KL Divergence",   "episode_kl"),
+    "q_infnorm":      ("Q-Mean Difference", "episode_q_infnorm"),
+    "jacobian_diff":  ("Jacobian Difference",  "episode_jacobian_diff"),
+    "percent_uncert": ("Percent Uncertainty",  None),
+}
+CI_Z = 1.96
+
+def abbreviate_algorithm(path: str) -> str:
+    b = os.path.basename(path)
+    if "meow_continuous_action" in b:      return "meow"
+    if "td3_continuous_action" in b:       return "td3"
+    if "sac_continuous_action" in b or "autotune" in b: return "sac"
+    if "adaptive_sac" in b:                return "adaptive"
+    return "other"
 
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--input_dir",    type=str, default="results")
-    p.add_argument("--output_dir",   type=str, default="visualizations")
     p.add_argument("--file_pattern", type=str, default="pairwise_per_episode.csv")
+    p.add_argument("--output_dir",   type=str, default="visualizations")
     return p.parse_args()
 
-def abbreviate_algorithm(path: str) -> str:
-    b = os.path.basename(path)
-    if "td3_continuous_action" in b: return "td3"
-    if "sac_continuous_action" in b or "autotune" in b: return "sac"
-    if "meow_continuous_action" in b: return "meow"
-    return os.path.splitext(b)[0].split('_')[0]
+def load_and_aggregate(df: pd.DataFrame, metric_key: str):
+    if "algorithm_abbr" not in df:
+        df["algorithm_abbr"] = df["algorithm"].apply(abbreviate_algorithm)
+    if "alpha" not in df and "actor_i_alpha" in df:
+        df["alpha"] = pd.to_numeric(df["actor_i_alpha"], errors="coerce").fillna(1.0)
+    if "seed" not in df and "actor_i_seed" in df:
+        df["seed"] = df["actor_i_seed"].astype(int)
+    df.loc[df["algorithm_abbr"]=="td3", "alpha"] = 1.0
 
-def load_and_aggregate(df, metric_key):
-    if metric_key in OVERRIDE_METRIC_FILES:
-        try:
-            df = pd.read_csv(OVERRIDE_METRIC_FILES[metric_key])
-            df["env"] = OVERRIDE_ENV
-            df["algorithm_abbr"] = "td3"
-            df["alpha"] = 0.0  # Q mean diff is evaluated at alpha = 0
-            import re
-            def extract_seed(path):
-                match = re.search(r'__([0-9]+)__[0-9]+_step', str(path))
-                return int(match.group(1)) if match else np.nan
-            df["seed"] = df["checkpoint_i"].apply(extract_seed)
-        except Exception as e:
-            print(f"Failed to load override file for {metric_key}: {e}")
-            return None
-    else:
-        if "algorithm_abbr" not in df.columns and "algorithm" in df.columns:
-            df["algorithm_abbr"] = df["algorithm"].apply(abbreviate_algorithm)
-        if "alpha" not in df.columns and "actor_i_alpha" in df.columns:
-            df["alpha"] = pd.to_numeric(df["actor_i_alpha"], errors="coerce")
-        if "seed" not in df.columns and "actor_i_seed" in df.columns:
-            df["seed"] = df["actor_i_seed"]
-        df.loc[df["algorithm_abbr"] == "td3", "alpha"] = 1.0
-
-    raw_col = METRIC_COLUMN[metric_key]
-    if metric_key != "ci_of_ci" and raw_col in df.columns:
-        df = df.rename(columns={raw_col: metric_key})
-
-    df["seed"] = df.get("seed", np.nan)
-    df = df[df["algorithm_abbr"].isin(SUPPORTED_ALGS)]
-
-    candidates = []
-    if metric_key in df.columns: candidates.append(metric_key)
-    if raw_col in df.columns and metric_key == "ci_of_ci": candidates.append(raw_col)
-    if not candidates: return None
-    drop_col = candidates[0]
-    df = df.dropna(subset=[drop_col, "alpha", "seed"])
-    if df.empty: return None
-
-    if metric_key == "ci_of_ci":
-        per_seed = (
-            df.groupby(["env", "algorithm_abbr", "alpha", "seed"])
-              .episode_reward.agg(std="std", count="count").reset_index()
+    if metric_key == "percent_uncert":
+        per = (
+            df.groupby(["algorithm_abbr","alpha","seed"])["episode_reward"]
+              .agg(std="std", count="count")
+              .reset_index()
         )
-        per_seed["sem_run"] = per_seed["std"] / np.sqrt(per_seed["count"])
-        per_seed["ci_run"]  = CI_Z * per_seed["sem_run"]
-        summary = (
-            per_seed.groupby(["env", "algorithm_abbr", "alpha"])["ci_run"]
-              .agg(mean="mean", std="std", count="count").reset_index()
+        per["ci_run"] = CI_Z * per["std"] / np.sqrt(per["count"])
+        reward_per = (
+            df.groupby(["algorithm_abbr","alpha","seed"])["episode_reward"]
+              .mean().reset_index(name="mean_reward")
         )
-    else:
-        per_seed = (
-            df.groupby(["env", "algorithm_abbr", "alpha", "seed"])[metric_key]
-              .mean().reset_index(name="metric_mean")
+        merged = per.merge(reward_per, on=["algorithm_abbr","alpha","seed"])
+        pct = (
+            merged.groupby(["algorithm_abbr","alpha"])
+                  .apply(lambda g: (g["ci_run"]/g["mean_reward"]).mean()*100)
+                  .reset_index(name="percent_uncert")
         )
-        summary = (
-            per_seed.groupby(["env", "algorithm_abbr", "alpha"])["metric_mean"]
-              .agg(mean="mean", std="std", count="count").reset_index()
-        )
+        return pct[["algorithm_abbr","alpha","percent_uncert"]]
 
+    _, raw_col = METRICS[metric_key]
+    df = df.rename(columns={raw_col: metric_key})
+    df = df.dropna(subset=[metric_key,"alpha","seed","algorithm_abbr"])
+    per = (
+        df.groupby(["algorithm_abbr","alpha","seed"])[metric_key]
+          .mean().reset_index(name="mean")
+    )
+    summary = (
+        per.groupby(["algorithm_abbr","alpha"])["mean"]
+           .agg(mean="mean", std="std", count="count")
+           .reset_index()
+    )
     summary["sem"] = summary["std"] / np.sqrt(summary["count"])
     summary["ci"]  = CI_Z * summary["sem"]
     return summary
 
 def main():
     args = parse_args()
-    files = [f for f in os.listdir(args.input_dir)
-             if f.endswith(".csv") and args.file_pattern in f]
-    data = []
-    for f in files:
-        df = pd.read_csv(os.path.join(args.input_dir, f))
-        if "env" not in df or df["env"].dropna().empty: continue
-        data.append((df["env"].dropna().iloc[0], df))
-    if not data:
-        print("No valid data found."); return
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    # Group all files by env prefix (strip off any -1, -2, etc.)
+    file_groups = defaultdict(list)
+    pattern = re.compile(rf"^(.*?)-pairwise_per_episode(?:-\d+)?\.csv$")
+
+    for fname in os.listdir(args.input_dir):
+        match = pattern.match(fname)
+        if match:
+            env_key = match.group(1)
+            file_groups[env_key].append(os.path.join(args.input_dir, fname))
+        
+    if not file_groups:
+        print(f"No '{args.file_pattern}' files found in {args.input_dir}")
+        return
 
     nm = len(METRICS)
-    fig_height = 23
-    fig_width  = 18 * nm * 1.25
+    groups = [
+        ("MEOW_vs_TD3",      ["meow","td3"]),
+        ("SAC_TD3_Adaptive", ["sac","td3","adaptive"]),
+    ]
 
-    for env, df in data:
-        fig, axes = plt.subplots(1, nm, figsize=(fig_width, fig_height), sharey=False)
-        fig.subplots_adjust(left=0.05, right=0.98, top=0.87, bottom=0.22, wspace=0.22)
-        fig.suptitle(f"Environment: {env}", fontsize=84, y=0.96)
+    for env, file_list in sorted(file_groups.items()):
+        print(f"\n→ Environment: {env} (from {len(file_list)} files)")
+        df_parts = [pd.read_csv(f) for f in file_list]
+        df = pd.concat(df_parts, ignore_index=True)
 
-        handles = {}
-        for i, (mk, (title, _)) in enumerate(METRICS.items()):
-            ax = axes[i]
-            summary = load_and_aggregate(df.copy(), mk)
-            if summary is None or summary.empty:
-                ax.set_title(f"{title}\n(no data)", fontsize=60)
+        df["algorithm_abbr"] = df["algorithm"].apply(abbreviate_algorithm)
+        df["alpha"] = pd.to_numeric(df["actor_i_alpha"], errors="coerce").fillna(1.0)
+        df["seed"]  = df["actor_i_seed"].astype(int)
+        df.loc[df["algorithm_abbr"]=="td3", "alpha"] = 1.0
+
+        for group_name, algs in groups:
+            dfg = df[df["algorithm_abbr"].isin(algs)].copy()
+            dfg = dfg[~((dfg["algorithm_abbr"]=="td3") & (dfg["episode_reward"] < 50))]
+            dfg = dfg[~((dfg["algorithm_abbr"]=="meow") & (dfg["alpha"]==0.0))]
+
+            if dfg.empty:
+                print(f"  (No data for group {group_name} after filtering)")
                 continue
-            sub = summary[summary["env"] == env]
 
-            ax.set_title(title, fontsize=60)
-            ax.set_xlabel("Alpha", fontsize=54)
-            ax.set_xticks(np.arange(0, 0.8, 0.1))
-            ax.minorticks_on()
-            ax.set_ylabel(f"{title} (log scale)", fontsize=54)
-            ax.set_yscale("log")
-            ax.grid(True, which="major")
-            ax.grid(True, which="minor", linestyle=":", linewidth=1.5)
+            fig, axes = plt.subplots(1, nm, figsize=(6 * nm, 6), sharey=False)
+            fig.subplots_adjust(left=0.06, right=0.98, top=0.80, bottom=0.18, hspace=0.35)
+            fig.suptitle(f"{env}", fontsize=28)
+            legend_handles = {}
 
-            for alg in SUPPORTED_ALGS:
-                part = sub[sub["algorithm_abbr"] == alg]
-                if part.empty: continue
-                color = ALG_COLORS[alg]
-                main = ~np.isclose(part["alpha"], 1.0, atol=1e-6)
-                ref  =  np.isclose(part["alpha"], 1.0, atol=1e-6)
+            for i, (mk, (title, _)) in enumerate(METRICS.items()):
+                ax = axes[i]
+                summ = load_and_aggregate(dfg.copy(), mk)
+                ax.set_title(title)
+                ax.set_xlabel("Alpha")
+                ax.set_xlim(0, 0.7)
+                ax.minorticks_off()
+                ax.grid(True, linestyle='--', linewidth=0.8, color='gray', alpha=0.4)
 
-                if main.any():
-                    x = part.loc[main, "alpha"]
-                    y = part.loc[main, "ci"] if mk == "ci_of_ci" else part.loc[main, "mean"]
-                    ln, = ax.plot(x, y, "-o", color=color, label=alg.upper())
-                    if mk != "ci_of_ci":
-                        ci = part.loc[main, "ci"].fillna(0)
-                        ax.fill_between(x, y - ci, y + ci, color=color, alpha=0.25)
-                    handles[alg.upper()] = ln
+                if summ is None or summ.empty:
+                    ax.text(0.5, 0.5, "(no data)", ha='center', va='center')
+                    continue
 
-                if ref.any():
-                    y0 = part.loc[ref, "ci"].iloc[0] if mk == "ci_of_ci" else part.loc[ref, "mean"].iloc[0]
-                    label = "SAC α=1 Baseline" if alg == "sac" else "TD3 Baseline" if alg == "td3" else None
-                    if label:
-                        hl = ax.axhline(y0, linestyle="--", color=color, linewidth=5, label=label)
-                        handles[label] = hl
+                ylabel = "% Uncertainty" if mk == "percent_uncert" else (f"{title} (log)" if mk != "mean_reward" else title)
+                ax.set_ylabel(ylabel)
+                if mk != "mean_reward" and mk != "percent_uncert":
+                    ax.set_yscale("log")
 
-        fig.legend(
-            handles=list(handles.values()),
-            labels=list(handles.keys()),
-            loc="lower center",
-            bbox_to_anchor=(0.5, 0.05),
-            bbox_transform=fig.transFigure,
-            ncol=len(handles),
-            frameon=True
-        )
+                present = [a for a in algs if a in summ.algorithm_abbr.values]
 
-        os.makedirs(args.output_dir, exist_ok=True)
-        out = os.path.join(args.output_dir, f"{env}_alpha_vs_all_metrics.png")
-        fig.savefig(out, bbox_inches="tight", pad_inches=0.5, dpi=300)
-        plt.close(fig)
-        print(f"Saved: {out}")
+                for alg in present:
+                    part = summ[summ.algorithm_abbr == alg]
+                    x = part["alpha"].to_numpy()
+                    y = part["percent_uncert"].to_numpy() if mk == "percent_uncert" else part["mean"].to_numpy()
+                    color = COLOR_MAP.get(alg, None)
+                    label = LABEL_MAP.get(alg, alg)
+
+                    x_1 = part[np.isclose(part["alpha"], 1.0)]
+                    x_rest = part[~np.isclose(part["alpha"], 1.0)]
+
+                    if alg == "adaptive":
+                        yval = y[0] if len(y) > 0 else None
+                        if yval is not None:
+                            ln = ax.axhline(yval, linestyle='--', linewidth=2, label=label, color=color)
+                            legend_handles[ln.get_label()] = ln
+                        continue
+
+                    if not x_1.empty:
+                        yval = x_1["percent_uncert"].values[0] if mk == "percent_uncert" else x_1["mean"].values[0]
+                        new_label = "Learned Entropy" if alg == "sac" else label + " (α=1)"
+                        ln = ax.axhline(yval, linestyle='--', linewidth=2, label=new_label, color=color)
+                        legend_handles[ln.get_label()] = ln
+                    if not x_rest.empty:
+                        x_vals = x_rest["alpha"].to_numpy()
+                        y_vals = x_rest["percent_uncert"].to_numpy() if mk == "percent_uncert" else x_rest["mean"].to_numpy()
+                        ci = x_rest["ci"].to_numpy() if "ci" in x_rest else None
+                        ln, = ax.plot(x_vals, y_vals, '-o', label=label, color=color)
+                        if ci is not None:
+                            ax.fill_between(x_vals, y_vals - ci, y_vals + ci, alpha=0.25, color=color)
+                        legend_handles[ln.get_label()] = ln
+
+            fig.legend(
+                list(legend_handles.values()),
+                list(legend_handles.keys()),
+                loc='lower center',
+                bbox_to_anchor=(0.5, -0.08),
+                ncol=len(legend_handles),
+                frameon=True
+            )
+
+            out = os.path.join(args.output_dir, f"{env}_{group_name}.png")
+            fig.savefig(out, dpi=300, bbox_inches="tight")
+            plt.close(fig)
+            print(f"✅ Saved: {out}")
 
 if __name__ == "__main__":
     main()
